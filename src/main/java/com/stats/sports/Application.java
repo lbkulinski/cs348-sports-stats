@@ -3,8 +3,21 @@ package com.stats.sports;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.SpringApplication;
 
+/**
+ * An application for sports statistics.
+ *
+ * <p>Purdue University -- CS34800 -- Spring 2021 -- Project</p>
+ *
+ * @author Logan Kulinski, lbk@purdue.edu
+ * @version March 26, 2021
+ */
 @SpringBootApplication
 public class Application {
+    /**
+     * Runs the sports statistics application.
+     *
+     * @param args the command line arguments
+     */
 	public static void main(String[] args) {
 	    int expectedLength = 4;
 	    String format;

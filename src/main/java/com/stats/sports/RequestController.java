@@ -2,24 +2,38 @@ package com.stats.sports;
 
 import org.springframework.stereotype.Controller;
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.util.Objects;
 import java.sql.Statement;
+import java.sql.SQLException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.ui.Model;
-import java.util.Objects;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.ResponseBody;
-import java.sql.ResultSet;
 import java.util.List;
 import java.util.ArrayList;
 
+/**
+ * A controller for requests of the the sports statistics application.
+ *
+ * <p>Purdue University -- CS34800 -- Spring 2021 -- Project</p>
+ *
+ * @author Logan Kulinski, lbk@purdue.edu
+ * @version March 26, 2021
+ */
 @Controller
 public final class RequestController {
+    /**
+     * The connection of the {@code RequestController} class.
+     */
     private static final Connection connection;
 
+    /**
+     * The next ID of the {@code RequestController} class.
+     */
     private static int nextId;
 
     static {
@@ -28,6 +42,11 @@ public final class RequestController {
         nextId = getId();
     } //static
 
+    /**
+     * Returns the ID to be assigned to the next sport.
+     *
+     * @return the ID to be assigned to the next sport
+     */
     private static int getId() {
         String query;
         ResultSet resultSet;
@@ -52,6 +71,13 @@ public final class RequestController {
         return id;
     } //getId
 
+    /**
+     * Returns the form for adding a sport.
+     *
+     * @param model the model to be used in the operation
+     * @return the form for adding a sport
+     * @throws NullPointerException if the specified model is {@code null}
+     */
     @GetMapping("add-sport")
     public String addSportForm(Model model) {
         Sport sport;
@@ -65,6 +91,14 @@ public final class RequestController {
         return "add-sport";
     } //addSportForm
 
+    /**
+     * Handles the request for attempting to add the specified sport.
+     *
+     * @param sport the sport to be used in the operation
+     * @param model the model to be used in the operation
+     * @return the response to attempting to add the specified sport
+     * @throws NullPointerException if the specified sport or model is {@code null}
+     */
     @PostMapping("add-sport")
     public String addSportSubmit(@ModelAttribute Sport sport, Model model) {
         int id;
@@ -104,6 +138,13 @@ public final class RequestController {
         return "add-sport-success";
     } //addSportSubmit
 
+    /**
+     * Returns the form for searching for a sport.
+     *
+     * @param model the model to be used in the operation
+     * @return the form for searching for a sport
+     * @throws NullPointerException if the specified model is {@code null}
+     */
     @GetMapping("search-sport")
     public String searchSportForm(Model model) {
         Sport sport;
@@ -117,6 +158,14 @@ public final class RequestController {
         return "search-sport";
     } //searchSportForm
 
+    /**
+     * Handles the request for searching for the specified sport.
+     *
+     * @param sport the sport to be used in the operation
+     * @param model the model to be used in the operation
+     * @return the response to searching for the specified sport
+     * @throws NullPointerException if the specified sport or model is {@code null}
+     */
     @PostMapping(value = "search-sport", produces = MediaType.TEXT_HTML_VALUE)
     @ResponseBody
     public String searchSportSubmit(@ModelAttribute Sport sport, Model model) {
@@ -211,4 +260,95 @@ public final class RequestController {
 
         return htmlString;
     } //searchSportSubmit
+
+    /**
+     * Handles the request for listing sports.
+     *
+     * @return the response to listing sports
+     */
+    @GetMapping(value = "list-sports", produces = MediaType.TEXT_HTML_VALUE)
+    @ResponseBody
+    public String listSports() {
+        String name;
+        String query;
+        ResultSet resultSet;
+        List<String> names;
+        String format;
+        StringBuilder stringBuilder;
+        String tableString;
+        String htmlString;
+
+        Objects.requireNonNull(RequestController.connection, "the connection is null");
+
+        query = "SELECT name FROM sports;";
+
+        try (Statement statement = RequestController.connection.createStatement()) {
+            resultSet = statement.executeQuery(query);
+
+            names = new ArrayList<>();
+
+            while (resultSet.next()) {
+                name = resultSet.getString("name");
+
+                names.add(name);
+            } //end while
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+            return "list-sports-failure";
+        } //end try catch
+
+        if (names.isEmpty()) {
+            htmlString = "<!DOCTYPE HTML>\n" +
+                         "<html>\n" +
+                         "<head>\n" +
+                         "<title>List Sports</title>\n" +
+                         "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n" +
+                         "</head>\n" +
+                         "<body>\n" +
+                         "<h1>List Sports</h1>\n" +
+                         "<p>No sports exist.</p>\n" +
+                         "</body>\n" +
+                         "</html>";
+
+            return htmlString;
+        } //end if
+
+        names.sort(String::compareTo);
+
+        format = "<!DOCTYPE HTML>\n" +
+                 "<html>\n" +
+                 "<head>\n" +
+                 "<title>List Sports</title>\n" +
+                 "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n" +
+                 "</head>\n" +
+                 "<body>\n" +
+                 "<h1>List Sports</h1>\n" +
+                 "<table border = '1'>\n" +
+                 "<tr><th>Name</th></tr>\n" +
+                 "%s" +
+                 "</table>\n" +
+                 "</body>\n" +
+                 "</html>";
+
+        stringBuilder = new StringBuilder();
+
+        for (String nameString : names) {
+            stringBuilder.append("<tr>");
+
+            stringBuilder.append("<td>");
+
+            stringBuilder.append(nameString);
+
+            stringBuilder.append("</td>");
+
+            stringBuilder.append("</tr>\n");
+        } //end for
+
+        tableString = stringBuilder.toString();
+
+        htmlString = String.format(format, tableString);
+
+        return htmlString;
+    } //listSports
 }
