@@ -207,6 +207,68 @@ public final class RequestController {
     } //editSportSubmit
 
     /**
+     * Returns the form for deleting a sport.
+     *
+     * @param model the model to be used in the operation
+     * @return the form for deleting a sport
+     * @throws NullPointerException if the specified model is {@code null}
+     */
+    @GetMapping("delete-sport")
+    public String deleteSportForm(Model model) {
+        Sport sport;
+
+        Objects.requireNonNull(model, "the specified model is null");
+
+        sport = new Sport();
+
+        model.addAttribute("sport", sport);
+
+        return "delete-sport";
+    } //deleteSportForm
+
+    /**
+     * Handles the request for attempting to delete the specified sport.
+     *
+     * @param sport the sport to be used in the operation
+     * @param model the model to be used in the operation
+     * @return the response to attempting to delete the specified sport
+     * @throws NullPointerException if the specified sport or model is {@code null}
+     */
+    @PostMapping("delete-sport")
+    public String deleteSportSubmit(@ModelAttribute Sport sport, Model model) {
+        String name;
+        String deleteStatement;
+        int nameIndex = 1;
+        int rowsAffected;
+
+        Objects.requireNonNull(sport, "the specified sport is null");
+
+        Objects.requireNonNull(model, "the specified model is null");
+
+        Objects.requireNonNull(RequestController.connection, "the connection is null");
+
+        name = sport.getName();
+
+        deleteStatement = "DELETE FROM sports WHERE UPPER(name) = UPPER(?);";
+
+        try (PreparedStatement preparedStatement = RequestController.connection.prepareStatement(deleteStatement)) {
+            preparedStatement.setString(nameIndex, name);
+
+            rowsAffected = preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+            return "delete-sport-failure";
+        } //end try catch
+
+        if (rowsAffected > 0) {
+            return "delete-sport-success";
+        } else {
+            return "delete-sport-failure-not-found";
+        } //end if
+    } //deleteSportSubmit
+
+    /**
      * Returns the form for searching for a sport.
      *
      * @param model the model to be used in the operation
