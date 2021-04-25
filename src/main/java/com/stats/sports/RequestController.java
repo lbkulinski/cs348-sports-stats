@@ -22,7 +22,7 @@ import java.util.ArrayList;
  * <p>Purdue University -- CS34800 -- Spring 2021 -- Project</p>
  *
  * @author Logan Kulinski, lbk@purdue.edu
- * @version March 26, 2021
+ * @version April 25, 2021
  */
 @Controller
 public final class RequestController {
@@ -137,6 +137,74 @@ public final class RequestController {
 
         return "add-sport-success";
     } //addSportSubmit
+
+    /**
+     * Returns the form for editing a sport.
+     *
+     * @param model the model to be used in the operation
+     * @return the form for editing a sport
+     * @throws NullPointerException if the specified model is {@code null}
+     */
+    @GetMapping("edit-sport")
+    public String editSportForm(Model model) {
+        EditSport editSport;
+
+        Objects.requireNonNull(model, "the specified model is null");
+
+        editSport = new EditSport();
+
+        model.addAttribute("editSport", editSport);
+
+        return "edit-sport";
+    } //editSportForm
+
+    /**
+     * Handles the request for attempting to edit a sport using the specified edit sport.
+     *
+     * @param editSport the edit sport to be used in the operation
+     * @param model the model to be used in the operation
+     * @return the response to attempting to edit a sport using the specified edit sport
+     * @throws NullPointerException if the specified edit sport or model is {@code null}
+     */
+    @PostMapping("edit-sport")
+    public String editSportSubmit(@ModelAttribute EditSport editSport, Model model) {
+        String oldName;
+        String newName;
+        String updateStatement;
+        int newNameIndex = 1;
+        int oldNameIndex = 2;
+        int rowsAffected;
+
+        Objects.requireNonNull(editSport, "the specified edit sport is null");
+
+        Objects.requireNonNull(model, "the specified model is null");
+
+        Objects.requireNonNull(RequestController.connection, "the connection is null");
+
+        oldName = editSport.getOldName();
+
+        newName = editSport.getNewName();
+
+        updateStatement = "UPDATE sports SET name = ? WHERE UPPER(name) = UPPER(?);";
+
+        try (PreparedStatement preparedStatement = RequestController.connection.prepareStatement(updateStatement)) {
+            preparedStatement.setString(newNameIndex, newName);
+
+            preparedStatement.setString(oldNameIndex, oldName);
+
+            rowsAffected = preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+            return "edit-sport-failure";
+        } //end try catch
+
+        if (rowsAffected > 0) {
+            return "edit-sport-success";
+        } else {
+            return "edit-sport-failure-not-found";
+        } //end if
+    } //editSportSubmit
 
     /**
      * Returns the form for searching for a sport.

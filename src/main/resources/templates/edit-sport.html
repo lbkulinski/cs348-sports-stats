@@ -1,0 +1,15 @@
+<!DOCTYPE HTML>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title>Edit Sport</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<h1>Edit Sport</h1>
+<form action="#" th:action="@{/edit-sport}" th:object="${editSport}" method="post">
+    <p>Old name: <input type="text" th:field="*{oldName}" /></p>
+    <p>New name: <input type="text" th:field="*{newName}" /></p>
+    <p><input type="submit" value="Edit" /> <input type="reset" value="Reset" /></p>
+</form>
+</body>
+</html>
