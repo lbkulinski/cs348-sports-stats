@@ -53,7 +53,7 @@ public final class Season {
      *
      * @return the sport_name of this season.
      */
-    public String getSportName() {return this.sport_name;} //getSportName
+    public String getSport_name() {return this.sport_name;} //getSportName
 
     /**
      * Updates the year of this season with the specified date
@@ -67,7 +67,7 @@ public final class Season {
      *
      * @param sport_name the sport_name to be used in the operation
      */
-    public void setSportName(String sport_name) {this.sport_name = sport_name;} //setSportName
+    public void setSport_name(String sport_name) {this.sport_name = sport_name;} //setSportName
 
     /**
      * Returns the hash code of this season

@@ -53,7 +53,7 @@ public final class DeleteSeason {
      *
      * @return the sport name of the deleted season
      */
-    public String getSportName() {return this.sport_name;}
+    public String getSport_name() {return this.sport_name;}
 
     /**
      * Updates the year of this delete season with the specified year
@@ -67,7 +67,7 @@ public final class DeleteSeason {
      *
      * @param sport_name the sport name to be used in the operation
      */
-    public void setSportName(String sport_name) {this.sport_name = sport_name;}
+    public void setSport_name(String sport_name) {this.sport_name = sport_name;}
 
     /**
      * Returns the hash code of this delete season
