@@ -8,13 +8,13 @@ import java.util.Objects;
  * <p>Purdue University -- CS34800 -- Spring 2021 -- Project</p>
  *
  * @author Logan Kulinski, lbk@purdue.edu
- * @version April 25, 2021
+ * @version April 26, 2021
  */
 public final class EditSport {
     /**
-     * The old name of this edit sport.
+     * The ID of this edit sport.
      */
-    private String oldName;
+    private String id;
 
     /**
      * The new name of this edit sport.
@@ -22,31 +22,31 @@ public final class EditSport {
     private String newName;
 
     /**
-     * Constructs a newly allocated {@code EditSport} object with the specified old name and new name.
+     * Constructs a newly allocated {@code EditSport} object with the specified ID and new name.
      *
-     * @param oldName the old name to be used in construction
+     * @param id the ID to be used in construction
      * @param newName the new name to be used in construction
      */
-    public EditSport(String oldName, String newName) {
-        this.oldName = oldName;
+    public EditSport(String id, String newName) {
+        this.id = id;
 
         this.newName = newName;
     } //EditSport
 
     /**
-     * Constructs a newly allocated {@code EditSport} object with a default old name and new name of {@code null}.
+     * Constructs a newly allocated {@code EditSport} object with a default ID and new name of {@code null}.
      */
     public EditSport() {
         this(null, null);
     } //EditSport
 
     /**
-     * Returns the old name of this edit sport.
+     * Returns the ID of this edit sport.
      *
-     * @return the old name of this edit sport
+     * @return the ID of this edit sport
      */
-    public String getOldName() {
-        return this.oldName;
+    public String getId() {
+        return this.id;
     } //getOldName
 
     /**
@@ -59,12 +59,12 @@ public final class EditSport {
     } //getNewName
 
     /**
-     * Updates the old name of this edit sport with the specified old name.
+     * Updates the ID of this edit sport with the specified ID.
      *
-     * @param oldName the old name to be used in the operation
+     * @param id the ID to be used in the operation
      */
-    public void setOldName(String oldName) {
-        this.oldName = oldName;
+    public void setId(String id) {
+        this.id = id;
     } //setOldName
 
     /**
@@ -83,12 +83,12 @@ public final class EditSport {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(this.oldName, this.newName);
+        return Objects.hash(this.id, this.newName);
     } //hashCode
 
     /**
      * Determines whether or not the specified object is equal to this edit sport. {@code true} is returned if and only
-     * if the specified object is an instance of {@code EditSport} and its old name and new name are equal to this edit
+     * if the specified object is an instance of {@code EditSport} and its ID and new name are equal to this edit
      * sport's. Name comparisons are case-sensitive.
      *
      * @param object the object to be used in the comparisons
@@ -99,7 +99,7 @@ public final class EditSport {
         if (object instanceof EditSport) {
             boolean equal;
 
-            equal = Objects.equals(this.oldName, ((EditSport) object).oldName);
+            equal = Objects.equals(this.id, ((EditSport) object).id);
 
             equal &= Objects.equals(this.newName, ((EditSport) object).newName);
 
@@ -117,8 +117,8 @@ public final class EditSport {
      */
     @Override
     public String toString() {
-        String format = "EditSport[oldName=%s, newName=%s]";
+        String format = "EditSport[id=%s, newName=%s]";
 
-        return String.format(format, this.oldName, this.newName);
+        return String.format(format, this.id, this.newName);
     } //toString
 }

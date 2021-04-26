@@ -6,8 +6,8 @@
 </head>
 <body>
 <h1>Delete Sport</h1>
-<form action="#" th:action="@{/delete-sport}" th:object="${sport}" method="post">
-    <p>Name: <input type="text" th:field="*{name}" /></p>
+<form action="#" th:action="@{/delete-sport}" th:object="${deleteSport}" method="post">
+    <p>ID: <input type="text" th:field="*{id}" /></p>
     <p><input type="submit" value="Delete" /> <input type="reset" value="Reset" /></p>
 </form>
 </body>

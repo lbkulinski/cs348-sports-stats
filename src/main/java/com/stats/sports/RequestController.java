@@ -22,7 +22,7 @@ import java.util.ArrayList;
  * <p>Purdue University -- CS34800 -- Spring 2021 -- Project</p>
  *
  * @author Logan Kulinski, lbk@purdue.edu
- * @version April 25, 2021
+ * @version April 26, 2021
  */
 @Controller
 public final class RequestController {
@@ -168,11 +168,12 @@ public final class RequestController {
      */
     @PostMapping("edit-sport")
     public String editSportSubmit(@ModelAttribute EditSport editSport, Model model) {
-        String oldName;
+        String idString;
+        int id;
         String newName;
         String updateStatement;
         int newNameIndex = 1;
-        int oldNameIndex = 2;
+        int idIndex = 2;
         int rowsAffected;
 
         Objects.requireNonNull(editSport, "the specified edit sport is null");
@@ -181,16 +182,22 @@ public final class RequestController {
 
         Objects.requireNonNull(RequestController.connection, "the connection is null");
 
-        oldName = editSport.getOldName();
+        idString = editSport.getId();
+
+        try {
+            id = Integer.parseInt(idString);
+        } catch (NumberFormatException e) {
+            return "edit-sport-failure-id-invalid";
+        } //end try catch
 
         newName = editSport.getNewName();
 
-        updateStatement = "UPDATE sports SET name = ? WHERE UPPER(name) = UPPER(?);";
+        updateStatement = "UPDATE sports SET name = ? WHERE sport_id = ?;";
 
         try (PreparedStatement preparedStatement = RequestController.connection.prepareStatement(updateStatement)) {
             preparedStatement.setString(newNameIndex, newName);
 
-            preparedStatement.setString(oldNameIndex, oldName);
+            preparedStatement.setInt(idIndex, id);
 
             rowsAffected = preparedStatement.executeUpdate();
         } catch (SQLException e) {
@@ -215,44 +222,51 @@ public final class RequestController {
      */
     @GetMapping("delete-sport")
     public String deleteSportForm(Model model) {
-        Sport sport;
+        DeleteSport deleteSport;
 
         Objects.requireNonNull(model, "the specified model is null");
 
-        sport = new Sport();
+        deleteSport = new DeleteSport();
 
-        model.addAttribute("sport", sport);
+        model.addAttribute("deleteSport", deleteSport);
 
         return "delete-sport";
     } //deleteSportForm
 
     /**
-     * Handles the request for attempting to delete the specified sport.
+     * Handles the request for attempting to delete the specified delete sport.
      *
-     * @param sport the sport to be used in the operation
+     * @param deleteSport the delete sport to be used in the operation
      * @param model the model to be used in the operation
-     * @return the response to attempting to delete the specified sport
-     * @throws NullPointerException if the specified sport or model is {@code null}
+     * @return the response to attempting to delete the specified delete sport
+     * @throws NullPointerException if the specified delete sport or model is {@code null}
      */
     @PostMapping("delete-sport")
-    public String deleteSportSubmit(@ModelAttribute Sport sport, Model model) {
-        String name;
+    public String deleteSportSubmit(@ModelAttribute DeleteSport deleteSport, Model model) {
+        String idString;
+        int id;
         String deleteStatement;
-        int nameIndex = 1;
+        int idIndex = 1;
         int rowsAffected;
 
-        Objects.requireNonNull(sport, "the specified sport is null");
+        Objects.requireNonNull(deleteSport, "the specified delete sport is null");
 
         Objects.requireNonNull(model, "the specified model is null");
 
         Objects.requireNonNull(RequestController.connection, "the connection is null");
 
-        name = sport.getName();
+        idString = deleteSport.getId();
 
-        deleteStatement = "DELETE FROM sports WHERE UPPER(name) = UPPER(?);";
+        try {
+            id = Integer.parseInt(idString);
+        } catch (NumberFormatException e) {
+            return "delete-sport-failure-id-invalid";
+        } //end try catch
+
+        deleteStatement = "DELETE FROM sports WHERE sport_id = ?;";
 
         try (PreparedStatement preparedStatement = RequestController.connection.prepareStatement(deleteStatement)) {
-            preparedStatement.setString(nameIndex, name);
+            preparedStatement.setInt(idIndex, id);
 
             rowsAffected = preparedStatement.executeUpdate();
         } catch (SQLException e) {
@@ -303,7 +317,9 @@ public final class RequestController {
         String searchQuery;
         int nameIndex = 1;
         ResultSet resultSet;
+        List<Integer> ids;
         List<String> names;
+        int id;
         String format;
         StringBuilder stringBuilder;
         String tableString;
@@ -319,17 +335,23 @@ public final class RequestController {
 
         name = sport.getName();
 
-        searchQuery = "SELECT name FROM sports WHERE UPPER(name) = UPPER(?);";
+        searchQuery = "SELECT sport_id, name FROM sports WHERE UPPER(name) = UPPER(?);";
 
         try (PreparedStatement preparedStatement = RequestController.connection.prepareStatement(searchQuery)) {
             preparedStatement.setString(nameIndex, name);
 
             resultSet = preparedStatement.executeQuery();
 
+            ids = new ArrayList<>();
+
             names = new ArrayList<>();
 
             while (resultSet.next()) {
+                id = resultSet.getInt("sport_id");
+
                 name = resultSet.getString("name");
+
+                ids.add(id);
 
                 names.add(name);
             } //end while
@@ -364,7 +386,7 @@ public final class RequestController {
                  "<body>\n" +
                  "<h1>Search Sport</h1>\n" +
                  "<table border = '1'>\n" +
-                 "<tr><th>Name</th></tr>\n" +
+                 "<tr><th>ID</th><th>Name</th></tr>\n" +
                  "%s" +
                  "</table>\n" +
                  "</body>\n" +
@@ -372,12 +394,22 @@ public final class RequestController {
 
         stringBuilder = new StringBuilder();
 
-        for (String nameString : names) {
+        for (int i = 0; i < ids.size(); i++) {
+            id = ids.get(i);
+
+            name = names.get(i);
+
             stringBuilder.append("<tr>");
 
             stringBuilder.append("<td>");
 
-            stringBuilder.append(nameString);
+            stringBuilder.append(id);
+
+            stringBuilder.append("</td>");
+
+            stringBuilder.append("<td>");
+
+            stringBuilder.append(name);
 
             stringBuilder.append("</td>");
 
@@ -399,10 +431,12 @@ public final class RequestController {
     @GetMapping(value = "list-sports", produces = MediaType.TEXT_HTML_VALUE)
     @ResponseBody
     public String listSports() {
-        String name;
         String query;
         ResultSet resultSet;
+        List<Integer> ids;
         List<String> names;
+        int id;
+        String name;
         String format;
         StringBuilder stringBuilder;
         String tableString;
@@ -410,15 +444,21 @@ public final class RequestController {
 
         Objects.requireNonNull(RequestController.connection, "the connection is null");
 
-        query = "SELECT name FROM sports;";
+        query = "SELECT sport_id, name FROM sports;";
 
         try (Statement statement = RequestController.connection.createStatement()) {
             resultSet = statement.executeQuery(query);
 
+            ids = new ArrayList<>();
+
             names = new ArrayList<>();
 
             while (resultSet.next()) {
+                id = resultSet.getInt("sport_id");
+
                 name = resultSet.getString("name");
+
+                ids.add(id);
 
                 names.add(name);
             } //end while
@@ -444,8 +484,6 @@ public final class RequestController {
             return htmlString;
         } //end if
 
-        names.sort(String::compareTo);
-
         format = "<!DOCTYPE HTML>\n" +
                  "<html>\n" +
                  "<head>\n" +
@@ -455,7 +493,7 @@ public final class RequestController {
                  "<body>\n" +
                  "<h1>List Sports</h1>\n" +
                  "<table border = '1'>\n" +
-                 "<tr><th>Name</th></tr>\n" +
+                 "<tr><th>ID</th><th>Name</th></tr>\n" +
                  "%s" +
                  "</table>\n" +
                  "</body>\n" +
@@ -463,12 +501,22 @@ public final class RequestController {
 
         stringBuilder = new StringBuilder();
 
-        for (String nameString : names) {
+        for (int i = 0; i < ids.size(); i++) {
+            id = ids.get(i);
+
+            name = names.get(i);
+
             stringBuilder.append("<tr>");
 
             stringBuilder.append("<td>");
 
-            stringBuilder.append(nameString);
+            stringBuilder.append(id);
+
+            stringBuilder.append("</td>");
+
+            stringBuilder.append("<td>");
+
+            stringBuilder.append(name);
 
             stringBuilder.append("</td>");
 
@@ -481,4 +529,14 @@ public final class RequestController {
 
         return htmlString;
     } //listSports
+
+    /**
+     * Handles the request for the sport page.
+     *
+     * @return the response to requesting the sport page
+     */
+    @GetMapping("sport-page")
+    public String sportPage() {
+        return "sport-page";
+    } //sportPage
 }
