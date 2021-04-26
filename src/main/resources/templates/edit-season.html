@@ -1,0 +1,17 @@
+<!DOCTYPE HTML>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title>Edit Season</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<h1>Edit Season</h1>
+<form action="#" th:action="@{/edit-season}" th:object="${editSeason}" method="post">
+    <p>Original Year: <input type="text" th:field="*{year}" /></p>
+    <p>Original Sport Name: <input type="text" th:field="*{oldName}" /></p>
+    <p>New Year: <input type="text" th:field="*{newYear}" /></p>
+    <p>New Sport Name: <input type="text" th:field="*{newSportName}" /></p>
+    <p><input type="submit" value="Edit" /> <input type="reset" value="Reset" /></p>
+</form>
+</body>
+</html>

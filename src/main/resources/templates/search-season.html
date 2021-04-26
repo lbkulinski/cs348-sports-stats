@@ -1,0 +1,15 @@
+<!DOCTYPE HTML>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title>Search Season</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<h1>Search Sport</h1>
+<form action="#" th:action="@{/search-season}" th:object="${season}" method="post">
+    <p>Year: <input type="text" th:field="*{year}" /></p>
+    <p>Sport Name: <input type="text" th:field="*{sportName}" /></p>
+    <p><input type="submit" value="Search" /> <input type="reset" value="Reset" /></p>
+</form>
+</body>
+</html>
