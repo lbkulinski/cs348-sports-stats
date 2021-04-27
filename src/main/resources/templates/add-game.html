@@ -1,0 +1,19 @@
+<!DOCTYPE HTML>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+  <title>Add Game</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<h1>Add Game</h1>
+<form action="#" th:action="@{/add-game}" th:object="${game}" method="post">
+  <p>Date: <input type="text" th:field="*{date}" /></p>
+  <p>Season ID: <input type="text" th:field="*{seasonId}" /></p>
+  <p>Home team ID: <input type="text" th:field="*{homeTeamId}" /></p>
+  <p>Away team ID: <input type="text" th:field="*{awayTeamId}" /></p>
+  <p>Home team score: <input type="text" th:field="*{homeTeamScore}" /></p>
+  <p>Away team score: <input type="text" th:field="*{awayTeamScore}" /></p>
+  <p><input type="submit" value="Add" /> <input type="reset" value="Reset" /></p>
+</form>
+</body>
+</html>

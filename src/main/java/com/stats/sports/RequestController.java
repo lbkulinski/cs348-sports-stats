@@ -22,7 +22,7 @@ import java.util.ArrayList;
  * <p>Purdue University -- CS34800 -- Spring 2021 -- Project</p>
  *
  * @author Logan Kulinski, lbk@purdue.edu
- * @version April 26, 2021
+ * @version April 27, 2021
  */
 @Controller
 public final class RequestController {
@@ -1043,4 +1043,24 @@ public final class RequestController {
     public String seasonPage() {
         return "season-page";
     } //sportPage
+
+    /**
+     * Returns the form for adding a game.
+     *
+     * @param model the model to be used in the operation
+     * @return the form for adding a game
+     * @throws NullPointerException if the specified model is {@code null}
+     */
+    @GetMapping("add-game")
+    public String addGameForm(Model model) {
+        Game game;
+
+        Objects.requireNonNull(model, "the specified model is null");
+
+        game = new Game();
+
+        model.addAttribute("game", game);
+
+        return "add-game";
+    } //addGameForm
 }
