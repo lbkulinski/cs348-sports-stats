@@ -32,14 +32,21 @@ public final class RequestController {
     private static final Connection connection;
 
     /**
-     * The next ID of the {@code RequestController} class.
+     * The next sport ID of the {@code RequestController} class.
      */
-    private static int nextId;
+    private static int nextSportId;
+
+    /**
+     * The next game ID of the {@code RequestController} class.
+     */
+    private static int nextGameId;
 
     static {
         connection = DatabaseConnection.getConnection();
 
-        nextId = getId();
+        nextSportId = getSportId();
+
+        nextGameId = getGameId();
     } //static
 
     /**
@@ -47,7 +54,7 @@ public final class RequestController {
      *
      * @return the ID to be assigned to the next sport
      */
-    private static int getId() {
+    private static int getSportId() {
         String query;
         ResultSet resultSet;
         int id = 0;
@@ -69,7 +76,36 @@ public final class RequestController {
         } //end try catch
 
         return id;
-    } //getId
+    } //getSportId
+
+    /**
+     * Returns the ID to be assigned to the next game.
+     *
+     * @return the ID to be assigned to the next game
+     */
+    private static int getGameId() {
+        String query;
+        ResultSet resultSet;
+        int id = 0;
+
+        Objects.requireNonNull(RequestController.connection, "the connection is null");
+
+        query = "SELECT MAX(game_id) AS max_id FROM game;";
+
+        try (Statement statement = RequestController.connection.createStatement()) {
+            resultSet = statement.executeQuery(query);
+
+            while (resultSet.next()) {
+                id = resultSet.getInt("max_id");
+            } //end while
+
+            id++;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } //end try catch
+
+        return id;
+    } //getGameId
 
     /**
      * Returns the sport id bt use of the sport name
@@ -145,9 +181,9 @@ public final class RequestController {
 
         model.addAttribute("sport", sport);
 
-        id = RequestController.nextId;
+        id = RequestController.nextSportId;
 
-        RequestController.nextId++;
+        RequestController.nextSportId++;
 
         name = sport.getName();
 
@@ -1063,4 +1099,117 @@ public final class RequestController {
 
         return "add-game";
     } //addGameForm
+
+    /**
+     * Handles the request for attempting to add the specified game.
+     *
+     * @param game the game to be used in the operation
+     * @param model the model to be used in the operation
+     * @return the response to attempting to add the specified game
+     * @throws NullPointerException if the specified game or model is {@code null}
+     */
+    @PostMapping("add-game")
+    public String addGameSubmit(@ModelAttribute Game game, Model model) {
+        String date;
+        String seasonIdString;
+        int seasonId;
+        String homeTeamIdString;
+        int homeTeamId;
+        String awayTeamIdString;
+        int awayTeamId;
+        String homeTeamScoreString;
+        int homeTeamScore;
+        String awayTeamScoreString;
+        int awayTeamScore;
+        int id;
+        String insertStatement;
+        int idIndex = 1;
+        int dateIndex = 2;
+        int homeTeamScoreIndex = 3;
+        int awayTeamScoreIndex = 4;
+        int homeTeamIdIndex = 5;
+        int awayTeamIdIndex = 6;
+        int seasonIdIndex = 7;
+
+        Objects.requireNonNull(game, "the specified game is null");
+
+        Objects.requireNonNull(model, "the specified model is null");
+
+        Objects.requireNonNull(RequestController.connection, "the connection is null");
+
+        model.addAttribute("game", game);
+
+        date = game.getDate();
+
+        seasonIdString = game.getSeasonId();
+
+        try {
+            seasonId = Integer.parseInt(seasonIdString);
+        } catch (NumberFormatException e) {
+            return "add-game-failure-season-id-invalid";
+        } //end try catch
+
+        homeTeamIdString = game.getHomeTeamId();
+
+        try {
+            homeTeamId = Integer.parseInt(homeTeamIdString);
+        } catch (NumberFormatException e) {
+            return "add-game-failure-home-team-id-invalid";
+        } //end try catch
+
+        awayTeamIdString = game.getAwayTeamId();
+
+        try {
+            awayTeamId = Integer.parseInt(awayTeamIdString);
+        } catch (NumberFormatException e) {
+            return "add-game-failure-away-team-id-invalid";
+        } //end try catch
+
+        homeTeamScoreString = game.getHomeTeamScore();
+
+        try {
+            homeTeamScore = Integer.parseInt(homeTeamScoreString);
+        } catch (NumberFormatException e) {
+            return "add-game-failure-home-team-score-invalid";
+        } //end try catch
+
+        awayTeamScoreString = game.getAwayTeamScore();
+
+        try {
+            awayTeamScore = Integer.parseInt(awayTeamScoreString);
+        } catch (NumberFormatException e) {
+            return "add-game-failure-away-team-score-invalid";
+        } //end try catch
+
+        id = RequestController.nextGameId;
+
+        RequestController.nextGameId++;
+
+        insertStatement = "INSERT INTO game (game_id, game_date, home_team_score, away_team_score, home_team_id, " +
+                          "away_team_id, season_id) VALUES (?, ?, ?, ?, ?, ?, ?);";
+
+        try (PreparedStatement preparedStatement = RequestController.connection.prepareStatement(insertStatement)) {
+            preparedStatement.setInt(idIndex, id);
+
+            preparedStatement.setString(dateIndex, date);
+
+            preparedStatement.setInt(homeTeamScoreIndex, homeTeamScore);
+
+            preparedStatement.setInt(awayTeamScoreIndex, awayTeamScore);
+
+            preparedStatement.setInt(homeTeamIdIndex, homeTeamId);
+
+            preparedStatement.setInt(awayTeamIdIndex, awayTeamId);
+
+            preparedStatement.setInt(seasonIdIndex, seasonId);
+
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+            return "add-game-failure";
+        } //end try catch
+
+        return "add-game-success";
+    } //addGameSubmit
 }
