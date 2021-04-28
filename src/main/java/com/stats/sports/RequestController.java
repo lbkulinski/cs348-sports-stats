@@ -401,7 +401,7 @@ public final class RequestController {
 
         name = sport.getName();
 
-        searchQuery = "SELECT sport_id, name FROM sports WHERE UPPER(name) = UPPER(?);";
+        searchQuery = "SELECT * FROM sports WHERE UPPER(name) = UPPER(?);";
 
         try (PreparedStatement preparedStatement = RequestController.connection.prepareStatement(searchQuery)) {
             preparedStatement.setString(nameIndex, name);
@@ -510,7 +510,7 @@ public final class RequestController {
 
         Objects.requireNonNull(RequestController.connection, "the connection is null");
 
-        query = "SELECT sport_id, name FROM sports;";
+        query = "SELECT * FROM sports;";
 
         try (Statement statement = RequestController.connection.createStatement()) {
             resultSet = statement.executeQuery(query);
