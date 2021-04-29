@@ -22,7 +22,7 @@ import java.util.ArrayList;
  * <p>Purdue University -- CS34800 -- Spring 2021 -- Project</p>
  *
  * @author Logan Kulinski, lbk@purdue.edu
- * @version April 27, 2021
+ * @version April 28, 2021
  */
 @Controller
 public final class RequestController {
@@ -1212,4 +1212,313 @@ public final class RequestController {
 
         return "add-game-success";
     } //addGameSubmit
+
+    /**
+     * Returns the form for editing a game.
+     *
+     * @param model the model to be used in the operation
+     * @return the form for editing a game
+     * @throws NullPointerException if the specified model is {@code null}
+     */
+    @GetMapping("edit-game")
+    public String editGameForm(Model model) {
+        EditGame editGame;
+
+        Objects.requireNonNull(model, "the specified model is null");
+
+        editGame = new EditGame();
+
+        model.addAttribute("editGame", editGame);
+
+        return "edit-game";
+    } //editGameForm
+
+    /**
+     * Handles the request for attempting to edit a game using the specified edit game.
+     *
+     * @param editGame the edit game to be used in the operation
+     * @param model the model to be used in the operation
+     * @return the response to attempting to edit a game using the specified edit game
+     * @throws NullPointerException if the specified edit game or model is {@code null}
+     */
+    @PostMapping("edit-game")
+    public String editGameSubmit(@ModelAttribute EditGame editGame, Model model) {
+        String idString;
+        int id;
+        String field;
+        String newValueString;
+        String errorFileName = null;
+        int newValueInteger = 0;
+        String format;
+        String updateStatement;
+        int newValueIndex = 1;
+        int idIndex = 2;
+        int rowsAffected;
+
+        Objects.requireNonNull(editGame, "the specified edit game is null");
+
+        Objects.requireNonNull(model, "the specified model is null");
+
+        Objects.requireNonNull(RequestController.connection, "the connection is null");
+
+        idString = editGame.getId();
+
+        try {
+            id = Integer.parseInt(idString);
+        } catch (NumberFormatException e) {
+            return "edit-game-failure-game-id-invalid";
+        } //end try catch
+
+        field = editGame.getField();
+
+        newValueString = editGame.getNewValue();
+
+        switch (field) {
+            case "season_id": {
+                errorFileName = "edit-game-failure-season-id-invalid";
+
+                break;
+            } //case "season_id"
+            case "home_team_id": {
+                errorFileName = "edit-game-failure-home-team-id-invalid";
+
+                break;
+            } //"home_team_id"
+            case "away_team_id": {
+                errorFileName = "edit-game-failure-away-team-id-invalid";
+
+                break;
+            } //"away_team_id"
+            case "home_team_score": {
+                errorFileName = "edit-game-failure-home-team-score-invalid";
+
+                break;
+            } //"home_team_score"
+            case "away_team_score": {
+                errorFileName = "edit-game-failure-away-team-score-invalid";
+            } //"away_team_score"
+        } //end switch
+
+        if (!Objects.equals(field, "game_date")) {
+            try {
+                newValueInteger = Integer.parseInt(newValueString);
+            } catch (NumberFormatException e) {
+                return errorFileName;
+            } //end try catch
+        } //end if
+
+        format = "UPDATE game SET %s = ? WHERE game_id = ?;";
+
+        updateStatement = String.format(format, field);
+
+        try (PreparedStatement preparedStatement = RequestController.connection.prepareStatement(updateStatement)) {
+            if (Objects.equals(field, "game_date")) {
+                preparedStatement.setString(newValueIndex, newValueString);
+            } else {
+                preparedStatement.setInt(newValueIndex, newValueInteger);
+            } //end if
+
+            preparedStatement.setInt(idIndex, id);
+
+            rowsAffected = preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+            return "edit-game-failure";
+        } //end try catch
+
+        if (rowsAffected > 0) {
+            return "edit-game-success";
+        } else {
+            return "edit-game-failure-not-found";
+        } //end if
+    } //editGameSubmit
+    
+    /**
+     * Handles the request for listing games.
+     *
+     * @return the response to listing games
+     */
+    @GetMapping(value = "list-games", produces = MediaType.TEXT_HTML_VALUE)
+    @ResponseBody
+    public String listGames() {
+        String query;
+        ResultSet resultSet;
+        List<Integer> ids;
+        List<String> dates;
+        List<Integer> seasonIds;
+        List<Integer> homeTeamIds;
+        List<Integer> awayTeamIds;
+        List<Integer> homeTeamScores;
+        List<Integer> awayTeamScores;
+        int id;
+        String date;
+        int seasonId;
+        int homeTeamId;
+        int awayTeamId;
+        int homeTeamScore;
+        int awayTeamScore;
+        String format;
+        StringBuilder stringBuilder;
+        String tableString;
+        String htmlString;
+
+        Objects.requireNonNull(RequestController.connection, "the connection is null");
+
+        query = "SELECT * FROM game;";
+
+        try (Statement statement = RequestController.connection.createStatement()) {
+            resultSet = statement.executeQuery(query);
+
+            ids = new ArrayList<>();
+
+            dates = new ArrayList<>();
+
+            seasonIds = new ArrayList<>();
+
+            homeTeamIds = new ArrayList<>();
+
+            awayTeamIds = new ArrayList<>();
+
+            homeTeamScores = new ArrayList<>();
+
+            awayTeamScores = new ArrayList<>();
+
+            while (resultSet.next()) {
+                id = resultSet.getInt("game_id");
+
+                date = resultSet.getString("game_date");
+
+                seasonId = resultSet.getInt("season_id");
+
+                homeTeamId = resultSet.getInt("home_team_id");
+
+                awayTeamId = resultSet.getInt("away_team_id");
+
+                homeTeamScore = resultSet.getInt("home_team_score");
+
+                awayTeamScore = resultSet.getInt("away_team_score");
+
+                ids.add(id);
+
+                dates.add(date);
+
+                seasonIds.add(seasonId);
+
+                homeTeamIds.add(homeTeamId);
+
+                awayTeamIds.add(awayTeamId);
+
+                homeTeamScores.add(homeTeamScore);
+
+                awayTeamScores.add(awayTeamScore);
+            } //end while
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+            return "list-games-failure";
+        } //end try catch
+
+        if (dates.isEmpty()) {
+            htmlString = "<!DOCTYPE HTML>\n" +
+                         "<html>\n" +
+                         "<head>\n" +
+                         "<title>List Games</title>\n" +
+                         "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n" +
+                         "</head>\n" +
+                         "<body>\n" +
+                         "<h1>List Games</h1>\n" +
+                         "<p>No games exist.</p>\n" +
+                         "</body>\n" +
+                         "</html>";
+
+            return htmlString;
+        } //end if
+
+        format = "<!DOCTYPE HTML>\n" +
+                 "<html>\n" +
+                 "<head>\n" +
+                 "<title>List Games</title>\n" +
+                 "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n" +
+                 "</head>\n" +
+                 "<body>\n" +
+                 "<h1>List Games</h1>\n" +
+                 "<table border = '1'>\n" +
+                 "<tr><th>ID</th><th>Date</th><th>Season ID</th><th>Home team ID</th><th>Away team ID</th>" +
+                 "<th>Home team score</th><th>Away team score</th></tr>\n" +
+                 "%s" +
+                 "</table>\n" +
+                 "</body>\n" +
+                 "</html>";
+
+        stringBuilder = new StringBuilder();
+
+        for (int i = 0; i < ids.size(); i++) {
+            id = ids.get(i);
+
+            date = dates.get(i);
+
+            seasonId = seasonIds.get(i);
+
+            homeTeamId = homeTeamIds.get(i);
+
+            awayTeamId = awayTeamIds.get(i);
+
+            homeTeamScore = homeTeamScores.get(i);
+
+            awayTeamScore = awayTeamScores.get(i);
+
+            stringBuilder.append("<tr>");
+
+            stringBuilder.append("<td>");
+
+            stringBuilder.append(id);
+
+            stringBuilder.append("</td>");
+
+            stringBuilder.append("<td>");
+
+            stringBuilder.append(date);
+
+            stringBuilder.append("</td>");
+
+            stringBuilder.append("<td>");
+
+            stringBuilder.append(seasonId);
+
+            stringBuilder.append("</td>");
+
+            stringBuilder.append("<td>");
+
+            stringBuilder.append(homeTeamId);
+
+            stringBuilder.append("</td>");
+
+            stringBuilder.append("<td>");
+
+            stringBuilder.append(awayTeamId);
+
+            stringBuilder.append("</td>");
+
+            stringBuilder.append("<td>");
+
+            stringBuilder.append(homeTeamScore);
+
+            stringBuilder.append("</td>");
+
+            stringBuilder.append("<td>");
+
+            stringBuilder.append(awayTeamScore);
+
+            stringBuilder.append("</td>");
+
+            stringBuilder.append("</tr>\n");
+        } //end for
+
+        tableString = stringBuilder.toString();
+
+        htmlString = String.format(format, tableString);
+
+        return htmlString;
+    } //listGames
 }
