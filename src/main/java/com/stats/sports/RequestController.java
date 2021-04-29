@@ -113,7 +113,6 @@ public final class RequestController {
      * @param name the name of the sport
      * @return the id if the sport is in the database, "" if otherwise.
      */
-
     private static int getSportIdFromName(String name) {
         String searchQuery;
         int id = -1;
@@ -1333,7 +1332,76 @@ public final class RequestController {
             return "edit-game-failure-not-found";
         } //end if
     } //editGameSubmit
-    
+
+    /**
+     * Returns the form for deleting a game.
+     *
+     * @param model the model to be used in the operation
+     * @return the form for deleting a game
+     * @throws NullPointerException if the specified model is {@code null}
+     */
+    @GetMapping("delete-game")
+    public String deleteGameForm(Model model) {
+        DeleteGame deleteGame;
+
+        Objects.requireNonNull(model, "the specified model is null");
+
+        deleteGame = new DeleteGame();
+
+        model.addAttribute("deleteGame", deleteGame);
+
+        return "delete-game";
+    } //deleteGameForm
+
+    /**
+     * Handles the request for attempting to delete the specified delete game.
+     *
+     * @param deleteGame the delete game to be used in the operation
+     * @param model the model to be used in the operation
+     * @return the response to attempting to delete the specified delete game
+     * @throws NullPointerException if the specified delete game or model is {@code null}
+     */
+    @PostMapping("delete-game")
+    public String deleteSportSubmit(@ModelAttribute DeleteGame deleteGame, Model model) {
+        String idString;
+        int id;
+        String deleteStatement;
+        int idIndex = 1;
+        int rowsAffected;
+
+        Objects.requireNonNull(deleteGame, "the specified delete game is null");
+
+        Objects.requireNonNull(model, "the specified model is null");
+
+        Objects.requireNonNull(RequestController.connection, "the connection is null");
+
+        idString = deleteGame.getId();
+
+        try {
+            id = Integer.parseInt(idString);
+        } catch (NumberFormatException e) {
+            return "delete-game-failure-id-invalid";
+        } //end try catch
+
+        deleteStatement = "DELETE FROM game WHERE game_id = ?;";
+
+        try (PreparedStatement preparedStatement = RequestController.connection.prepareStatement(deleteStatement)) {
+            preparedStatement.setInt(idIndex, id);
+
+            rowsAffected = preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+            return "delete-game-failure";
+        } //end try catch
+
+        if (rowsAffected > 0) {
+            return "delete-game-success";
+        } else {
+            return "delete-game-failure-not-found";
+        } //end if
+    } //deleteSportSubmit
+
     /**
      * Handles the request for listing games.
      *
