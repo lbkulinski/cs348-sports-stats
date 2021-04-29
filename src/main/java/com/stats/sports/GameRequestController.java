@@ -350,7 +350,7 @@ public final class GameRequestController {
      * @throws NullPointerException if the specified delete game or model is {@code null}
      */
     @PostMapping("delete-game")
-    public String deleteSportSubmit(@ModelAttribute DeleteGame deleteGame, Model model) {
+    public String deleteGameSubmit(@ModelAttribute DeleteGame deleteGame, Model model) {
         String idString;
         int id;
         String deleteStatement;
@@ -388,7 +388,265 @@ public final class GameRequestController {
         } else {
             return "delete-game-failure-not-found";
         } //end if
-    } //deleteSportSubmit
+    } //deleteGameSubmit
+
+    /**
+     * Returns the form for searching for a game.
+     *
+     * @param model the model to be used in the operation
+     * @return the form for searching for a game
+     * @throws NullPointerException if the specified model is {@code null}
+     */
+    @GetMapping("search-game")
+    public String searchGameForm(Model model) {
+        SearchGame searchGame;
+
+        Objects.requireNonNull(model, "the specified model is null");
+
+        searchGame = new SearchGame();
+
+        model.addAttribute("searchGame", searchGame);
+
+        return "search-game";
+    } //searchGameForm
+
+    /**
+     * Handles the request for searching for the specified search game.
+     *
+     * @param searchGame the search game to be used in the operation
+     * @param model the model to be used in the operation
+     * @return the response to searching for the specified search game
+     * @throws NullPointerException if the specified search game or model is {@code null}
+     */
+    @PostMapping(value = "search-game", produces = MediaType.TEXT_HTML_VALUE)
+    @ResponseBody
+    public String searchGameSubmit(@ModelAttribute SearchGame searchGame, Model model) {
+        String field;
+        String searchValueString;
+        int searchValueInteger = 0;
+        String whereClause;
+        String format;
+        String searchQuery;
+        int searchValueIndex = 1;
+        ResultSet resultSet;
+        List<Integer> ids;
+        List<String> dates;
+        List<Integer> seasonIds;
+        List<Integer> homeTeamIds;
+        List<Integer> awayTeamIds;
+        List<Integer> homeTeamScores;
+        List<Integer> awayTeamScores;
+        int id;
+        String date;
+        int seasonId;
+        int homeTeamId;
+        int awayTeamId;
+        int homeTeamScore;
+        int awayTeamScore;
+        StringBuilder stringBuilder;
+        String tableString;
+        String htmlString;
+
+        Objects.requireNonNull(searchGame, "the specified search game is null");
+
+        Objects.requireNonNull(model, "the specified model is null");
+
+        Objects.requireNonNull(GameRequestController.connection, "the connection is null");
+
+        model.addAttribute("searchGame", searchGame);
+
+        field = searchGame.getField();
+
+        searchValueString = searchGame.getSearchValue();
+
+        if (!Objects.equals(field, "game_date")) {
+            try {
+                searchValueInteger = Integer.parseInt(searchValueString);
+            } catch (NumberFormatException e) {
+                return "<!DOCTYPE HTML>\n" +
+                       "<html>\n" +
+                       "<head>\n" +
+                       "<title>Search Game</title>\n" +
+                       "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n" +
+                       "</head>\n" +
+                       "<body>\n" +
+                       "<h1>Search Game</h1>\n" +
+                       "<p>No games with that search value exist.</p>\n" +
+                       "</body>\n" +
+                       "</html>";
+            } //end try catch
+        } //end if
+
+        if (Objects.equals(field, "game_date")) {
+            whereClause = "UPPER(game_date) = UPPER(?)";
+        } else {
+            format = "%s = ?";
+
+            whereClause = String.format(format, field);
+        } //end if
+
+        format = "SELECT * FROM game WHERE %s;";
+
+        searchQuery = String.format(format, whereClause);
+
+        try (var statement = GameRequestController.connection.prepareStatement(searchQuery)) {
+            if (Objects.equals(field, "game_date")) {
+                statement.setString(searchValueIndex, searchValueString);
+            } else {
+                statement.setInt(searchValueIndex, searchValueInteger);
+            } //end if
+
+            resultSet = statement.executeQuery();
+
+            ids = new ArrayList<>();
+
+            dates = new ArrayList<>();
+
+            seasonIds = new ArrayList<>();
+
+            homeTeamIds = new ArrayList<>();
+
+            awayTeamIds = new ArrayList<>();
+
+            homeTeamScores = new ArrayList<>();
+
+            awayTeamScores = new ArrayList<>();
+
+            while (resultSet.next()) {
+                id = resultSet.getInt("game_id");
+
+                date = resultSet.getString("game_date");
+
+                seasonId = resultSet.getInt("season_id");
+
+                homeTeamId = resultSet.getInt("home_team_id");
+
+                awayTeamId = resultSet.getInt("away_team_id");
+
+                homeTeamScore = resultSet.getInt("home_team_score");
+
+                awayTeamScore = resultSet.getInt("away_team_score");
+
+                ids.add(id);
+
+                dates.add(date);
+
+                seasonIds.add(seasonId);
+
+                homeTeamIds.add(homeTeamId);
+
+                awayTeamIds.add(awayTeamId);
+
+                homeTeamScores.add(homeTeamScore);
+
+                awayTeamScores.add(awayTeamScore);
+            } //end while
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+            return "search-game-failure";
+        } //end try catch
+
+        if (ids.isEmpty()) {
+            return "<!DOCTYPE HTML>\n" +
+                   "<html>\n" +
+                   "<head>\n" +
+                   "<title>Search Game</title>\n" +
+                   "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n" +
+                   "</head>\n" +
+                   "<body>\n" +
+                   "<h1>Search Game</h1>\n" +
+                   "<p>No games with that search value exist.</p>\n" +
+                   "</body>\n" +
+                   "</html>";
+        } //end if
+
+        format = "<!DOCTYPE HTML>\n" +
+                 "<html>\n" +
+                 "<head>\n" +
+                 "<title>Search Game</title>\n" +
+                 "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n" +
+                 "</head>\n" +
+                 "<body>\n" +
+                 "<h1>Search Game</h1>\n" +
+                 "<table border = '1'>\n" +
+                 "<tr><th>ID</th><th>Date</th><th>Season ID</th><th>Home team ID</th><th>Away team ID</th>" +
+                 "<th>Home team score</th><th>Away team score</th></tr>\n" +
+                 "%s" +
+                 "</table>\n" +
+                 "</body>\n" +
+                 "</html>";
+
+        stringBuilder = new StringBuilder();
+
+        for (int i = 0; i < ids.size(); i++) {
+            id = ids.get(i);
+
+            date = dates.get(i);
+
+            seasonId = seasonIds.get(i);
+
+            homeTeamId = homeTeamIds.get(i);
+
+            awayTeamId = awayTeamIds.get(i);
+
+            homeTeamScore = homeTeamScores.get(i);
+
+            awayTeamScore = awayTeamScores.get(i);
+
+            stringBuilder.append("<tr>");
+
+            stringBuilder.append("<td>");
+
+            stringBuilder.append(id);
+
+            stringBuilder.append("</td>");
+
+            stringBuilder.append("<td>");
+
+            stringBuilder.append(date);
+
+            stringBuilder.append("</td>");
+
+            stringBuilder.append("<td>");
+
+            stringBuilder.append(seasonId);
+
+            stringBuilder.append("</td>");
+
+            stringBuilder.append("<td>");
+
+            stringBuilder.append(homeTeamId);
+
+            stringBuilder.append("</td>");
+
+            stringBuilder.append("<td>");
+
+            stringBuilder.append(awayTeamId);
+
+            stringBuilder.append("</td>");
+
+            stringBuilder.append("<td>");
+
+            stringBuilder.append(homeTeamScore);
+
+            stringBuilder.append("</td>");
+
+            stringBuilder.append("<td>");
+
+            stringBuilder.append(awayTeamScore);
+
+            stringBuilder.append("</td>");
+
+            stringBuilder.append("</tr>\n");
+        } //end for
+
+        tableString = stringBuilder.toString();
+
+        htmlString = String.format(format, tableString);
+
+        return htmlString;
+    } //searchGameSubmit
 
     /**
      * Handles the request for listing games.
@@ -475,20 +733,18 @@ public final class GameRequestController {
             return "list-games-failure";
         } //end try catch
 
-        if (dates.isEmpty()) {
-            htmlString = "<!DOCTYPE HTML>\n" +
-                         "<html>\n" +
-                         "<head>\n" +
-                         "<title>List Games</title>\n" +
-                         "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n" +
-                         "</head>\n" +
-                         "<body>\n" +
-                         "<h1>List Games</h1>\n" +
-                         "<p>No games exist.</p>\n" +
-                         "</body>\n" +
-                         "</html>";
-
-            return htmlString;
+        if (ids.isEmpty()) {
+            return "<!DOCTYPE HTML>\n" +
+                   "<html>\n" +
+                   "<head>\n" +
+                   "<title>List Games</title>\n" +
+                   "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n" +
+                   "</head>\n" +
+                   "<body>\n" +
+                   "<h1>List Games</h1>\n" +
+                   "<p>No games exist.</p>\n" +
+                   "</body>\n" +
+                   "</html>";
         } //end if
 
         format = "<!DOCTYPE HTML>\n" +
