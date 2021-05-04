@@ -1,0 +1,14 @@
+<!DOCTYPE HTML>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+  <title>Delete Game</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<h1>Delete Game</h1>
+<form action="#" th:action="@{/delete-game}" th:object="${deleteGame}" method="post">
+  <p>ID: <input type="text" th:field="*{id}" /></p>
+  <p><input type="submit" value="Delete" /> <input type="reset" value="Reset" /></p>
+</form>
+</body>
+</html>

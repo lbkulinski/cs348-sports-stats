@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+  <title>Search Game</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<h1>Search Game</h1>
+<form action="#" th:action="@{/search-game}" th:object="${searchGame}" method="post">
+  <p>Field: <select th:field="*{field}">
+    <option th:value="game_id">ID</option>
+    <option th:value="game_date">Date</option>
+    <option th:value="season_id">Season ID</option>
+    <option th:value="home_team_id">Home team ID</option>
+    <option th:value="away_team_id">Away team ID</option>
+    <option th:value="home_team_score">Home team score</option>
+    <option th:value="away_team_score">Away team score</option>
+  </select></p>
+  <p>Search value: <input type="text" th:field="*{searchValue}" /></p>
+  <p><input type="submit" value="Search" /> <input type="reset" value="Reset" /></p>
+</form>
+</body>
+</html>

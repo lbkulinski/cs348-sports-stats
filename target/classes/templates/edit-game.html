@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title>Edit Game</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<h1>Edit Game</h1>
+<form action="#" th:action="@{/edit-game}" th:object="${editGame}" method="post">
+    <p>ID: <input type="text" th:field="*{id}" /></p>
+    <p>Field: <select th:field="*{field}">
+        <option th:value="game_date">Date</option>
+        <option th:value="season_id">Season ID</option>
+        <option th:value="home_team_id">Home team ID</option>
+        <option th:value="away_team_id">Away team ID</option>
+        <option th:value="home_team_score">Home team score</option>
+        <option th:value="away_team_score">Away team score</option>
+    </select></p>
+    <p>New value: <input type="text" th:field="*{newValue}" /></p>
+    <p><input type="submit" value="Edit" /> <input type="reset" value="Reset" /></p>
+</form>
+</body>
+</html>
