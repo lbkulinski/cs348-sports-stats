@@ -1,23 +1,27 @@
 <!DOCTYPE HTML>
 <html xmlns:th="https://www.thymeleaf.org">
-<head>
-  <title>Search Game</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-</head>
-<body>
-<h1>Search Game</h1>
-<form action="#" th:action="@{/search-game}" th:object="${searchGame}" method="post">
-  <p>Field: <select th:field="*{field}">
-    <option th:value="game_id">ID</option>
-    <option th:value="game_date">Date</option>
-    <option th:value="season_id">Season ID</option>
-    <option th:value="home_team_id">Home team ID</option>
-    <option th:value="away_team_id">Away team ID</option>
-    <option th:value="home_team_score">Home team score</option>
-    <option th:value="away_team_score">Away team score</option>
-  </select></p>
-  <p>Search value: <input type="text" th:field="*{searchValue}" /></p>
-  <p><input type="submit" value="Search" /> <input type="reset" value="Reset" /></p>
-</form>
-</body>
+    <head>
+      <title>Search Game</title>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js" integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf" crossorigin="anonymous"></script>
+    </head>
+    <body>
+        <div class="container">
+            <h1 class="mb-3">Search Game</h1>
+            <form action="#" th:action="@{/search-game}" th:object="${searchGame}" method="post">
+              <p>Field: <select th:field="*{field}" class="form-select">
+                <option th:value="game_id">ID</option>
+                <option th:value="game_date">Date</option>
+                <option th:value="season_id">Season ID</option>
+                <option th:value="home_team_id">Home team ID</option>
+                <option th:value="away_team_id">Away team ID</option>
+                <option th:value="home_team_score">Home team score</option>
+                <option th:value="away_team_score">Away team score</option>
+              </select></p>
+              <p>Search value: <input type="text" th:field="*{searchValue}" class="form-control" /></p>
+              <input type="submit" value="Search" class="btn btn-primary mt-2" /> <input type="reset" value="Reset" class="btn btn-danger mt-2"/>
+            </form>
+        </div>
+    </body>
 </html>
