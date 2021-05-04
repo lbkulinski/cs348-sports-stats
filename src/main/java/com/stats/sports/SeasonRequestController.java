@@ -432,9 +432,9 @@ public final class SeasonRequestController {
         String query;
         ResultSet resultSet;
         List<Integer> years;
-        List<Integer> sport_ids;
+        List<String> sport_names;
         int year;
-        int sport_id;
+        String sport_id;
         String format;
         StringBuilder stringBuilder;
         String tableString;
@@ -442,21 +442,21 @@ public final class SeasonRequestController {
 
         Objects.requireNonNull(SeasonRequestController.connection, "the connection is null");
 
-        query = "SELECT season_year, sport_id FROM season;";
+        query = "SELECT s1.season_year, s2.name FROM season s1 JOIN sports s2 ON s1.sport_id = s2.sport_id;";
 
         try (Statement statement = SeasonRequestController.connection.createStatement()) {
             resultSet = statement.executeQuery(query);
 
             years = new ArrayList<>();
 
-            sport_ids = new ArrayList<>();
+            sport_names = new ArrayList<>();
 
             while (resultSet.next()) {
-                sport_id = resultSet.getInt("sport_id");
+                sport_id = resultSet.getString("name");
 
                 year = resultSet.getInt("season_year");
 
-                sport_ids.add(sport_id);
+                sport_names.add(sport_id);
 
                 years.add(year);
             } //end while
@@ -491,7 +491,7 @@ public final class SeasonRequestController {
                 "<body>\n" +
                 "<h1>List Seasons</h1>\n" +
                 "<table border = '1'>\n" +
-                "<tr><th>Year</th><th>Sport_id</th></tr>\n" +
+                "<tr><th>Year</th><th>Sport_Name</th></tr>\n" +
                 "%s" +
                 "</table>\n" +
                 "</body>\n" +
@@ -502,7 +502,7 @@ public final class SeasonRequestController {
         for (int i = 0; i < years.size(); i++) {
             year = years.get(i);
 
-            sport_id = sport_ids.get(i);
+            sport_id = sport_names.get(i);
 
             stringBuilder.append("<tr>");
 
