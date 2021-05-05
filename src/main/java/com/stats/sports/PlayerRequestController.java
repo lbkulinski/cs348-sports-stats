@@ -302,10 +302,10 @@ public final class PlayerRequestController {
         int searchValueIndex = 1;
         ResultSet resultSet;
         List<Integer> player_ids;
-        List<String> player_names;
+        List<String> names;
         List<Integer> team_ids;
         int player_id;
-        String player_name;
+        String name;
         int team_id;
         StringBuilder stringBuilder;
         String tableString;
@@ -323,7 +323,7 @@ public final class PlayerRequestController {
 
         searchValueString = searchPlayer.getSearchValue();
 
-        if (!Objects.equals(field, "player_name")) {
+        if (!Objects.equals(field, "name")) {
             try {
                 searchValueInteger = Integer.parseInt(searchValueString);
             } catch (NumberFormatException e) {
@@ -341,8 +341,8 @@ public final class PlayerRequestController {
             } //end try catch
         } //end if
 
-        if (Objects.equals(field, "player_name")) {
-            whereClause = "UPPER(player_name) = UPPER(?)";
+        if (Objects.equals(field, "name")) {
+            whereClause = "UPPER(name) = UPPER(?)";
         } else {
             format = "%s = ?";
 
@@ -354,7 +354,7 @@ public final class PlayerRequestController {
         searchQuery = String.format(format, whereClause);
 
         try (var statement = PlayerRequestController.connection.prepareStatement(searchQuery)) {
-            if (Objects.equals(field, "player_name")) {
+            if (Objects.equals(field, "name")) {
                 statement.setString(searchValueIndex, searchValueString);
             } else {
                 statement.setInt(searchValueIndex, searchValueInteger);
@@ -364,20 +364,20 @@ public final class PlayerRequestController {
 
             player_ids = new ArrayList<>();
 
-            player_names = new ArrayList<>();
+            names = new ArrayList<>();
 
             team_ids = new ArrayList<>();
 
             while (resultSet.next()) {
                 player_id = resultSet.getInt("player_id");
 
-                player_name = resultSet.getString("player_name");
+                name = resultSet.getString("name");
 
                 team_id = resultSet.getInt("team_id");
 
                 player_ids.add(player_id);
 
-                player_names.add(player_name);
+                names.add(name);
 
                 team_ids.add(team_id);
             } //end while
@@ -410,7 +410,7 @@ public final class PlayerRequestController {
                 "<body>\n" +
                 "<h1>Search Player</h1>\n" +
                 "<table border = '1'>\n" +
-                "<tr><th>Player ID</th><th>player_name</th><th>team_id</th>\n</tr>" +
+                "<tr><th>Player ID</th><th>Name</th><th>Team ID</th>\n</tr>" +
                 "%s" +
                 "</table>\n" +
                 "</body>\n" +
@@ -421,7 +421,7 @@ public final class PlayerRequestController {
         for (int i = 0; i < player_ids.size(); i++) {
             player_id = player_ids.get(i);
 
-            player_name = player_names.get(i);
+            name = names.get(i);
 
             team_id = team_ids.get(i);
 
@@ -435,7 +435,7 @@ public final class PlayerRequestController {
 
             stringBuilder.append("<td>");
 
-            stringBuilder.append(player_name);
+            stringBuilder.append(name);
 
             stringBuilder.append("</td>");
 
@@ -466,11 +466,11 @@ public final class PlayerRequestController {
         String query;
         ResultSet resultSet;
         List<Integer> player_ids;
-        List<String> player_names;
+        List<String> names;
         List<Integer> team_ids;
 
         int player_id;
-        String player_name;
+        String name;
         int team_id;
         String format;
         StringBuilder stringBuilder;
@@ -486,20 +486,20 @@ public final class PlayerRequestController {
 
             player_ids = new ArrayList<>();
 
-            player_names = new ArrayList<>();
+            names = new ArrayList<>();
 
             team_ids = new ArrayList<>();
 
             while (resultSet.next()) {
                 player_id = resultSet.getInt("player_id");
 
-                player_name = resultSet.getString("player_name");
+                name = resultSet.getString("name");
 
                 team_id = resultSet.getInt("team_id");
 
                 player_ids.add(player_id);
 
-                player_names.add(player_name);
+                names.add(name);
 
                 team_ids.add(team_id);
             } //end while
@@ -543,7 +543,7 @@ public final class PlayerRequestController {
         for (int i = 0; i < player_ids.size(); i++) {
             player_id = player_ids.get(i);
 
-            player_name = player_names.get(i);
+            name = names.get(i);
 
             team_id = team_ids.get(i);
 
@@ -557,7 +557,7 @@ public final class PlayerRequestController {
 
             stringBuilder.append("<td>");
 
-            stringBuilder.append(player_name);
+            stringBuilder.append(name);
 
             stringBuilder.append("</td>");
 

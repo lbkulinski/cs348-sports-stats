@@ -10,7 +10,7 @@
 <div class="container">
   <h1 class="mb-3">Delete Player</h1>
   <form action="#" th:action="@{/delete-player}" th:object="${deletePlayer}" method="post">
-    <p>Team ID: <input type="text" th:field="*{id}" class="form-control" /></p>
+    <p>Player ID: <input type="text" th:field="*{id}" class="form-control" /></p>
     <input type="submit" value="Delete" class="btn btn-primary mt-2"/> <input type="reset" value="Reset" class="btn btn-danger mt-2"/>
   </form>
 </div>
