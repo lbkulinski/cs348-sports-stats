@@ -3,7 +3,7 @@ package com.stats.sports;
 import java.util.Objects;
 
 /**
- * An edited game in the sports statistics application.
+ * An edited team in the sports statistics application.
  *
  * <p>Purdue University -- CS34800 -- Spring 2021 -- Project</p>
  *

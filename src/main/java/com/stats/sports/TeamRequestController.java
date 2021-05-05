@@ -16,6 +16,8 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -45,14 +47,14 @@ public final class TeamRequestController {
         next_team_id = getTeam_id();
     } //static
 
-    /**
-     * Returns a DataSource object representing the database
-     *
-     * @return the DataSource object representing the database
-     */
     @Configuration
     public static class DataSourceConfig {
 
+        /**
+         * Returns a DataSource object representing the database
+         *
+         * @return the DataSource object representing the database
+         */
         @Bean
         public static DataSource getDataSource() {
             DataSourceBuilder dsBuilder = DataSourceBuilder.create();
@@ -126,9 +128,6 @@ public final class TeamRequestController {
         String team_name;
         String sport_id_string;
         int sport_id;
-        String insertStatement;
-        int id_index = 1;
-        int team_name_index = 2;
 
         Objects.requireNonNull(team, "the specified team is null");
 
@@ -208,7 +207,7 @@ public final class TeamRequestController {
         try {
             team_id = Integer.parseInt(idString);
         } catch (NumberFormatException e) {
-            return "edit-team-failure-team-id-invalid";
+            return "edit-team-failure-id-invalid";
         } //end try catch
 
         field = editTeam.getField();
@@ -280,4 +279,324 @@ public final class TeamRequestController {
 
         return "delete-team-success";
     } //deleteTeamSubmit
+
+    /**
+     * Returns the form for searching for a team.
+     *
+     * @param model the model to be used in the operation
+     * @return the form for searching for a team
+     * @throws NullPointerException if the specified model is {@code null}
+     */
+    @GetMapping("search-team")
+    public String searchTeamForm(Model model) {
+        SearchTeam searchTeam;
+
+        Objects.requireNonNull(model, "the specified model is null");
+
+        searchTeam = new SearchTeam();
+
+        model.addAttribute("searchTeam", searchTeam);
+
+        return "search-team";
+    } //searchTeamForm
+
+    /**
+     * Handles the request for searching for the specified search team.
+     *
+     * @param searchTeam the search team to be used in the operation
+     * @param model the model to be used in the operation
+     * @return the response to searching for the specified search team
+     * @throws NullPointerException if the specified search team or model is {@code null}
+     */
+    @PostMapping(value = "search-team", produces = MediaType.TEXT_HTML_VALUE)
+    @ResponseBody
+    public String searchTeamSubmit(@ModelAttribute SearchTeam searchTeam, Model model) {
+        String field;
+        String searchValueString;
+        int searchValueInteger = 0;
+        String whereClause;
+        String format;
+        String searchQuery;
+        int searchValueIndex = 1;
+        ResultSet resultSet;
+        List<Integer> team_ids;
+        List<String> team_names;
+        List<Integer> sport_ids;
+        int team_id;
+        String team_name;
+        int sport_id;
+        StringBuilder stringBuilder;
+        String tableString;
+        String htmlString;
+
+        Objects.requireNonNull(searchTeam, "the specified search team is null");
+
+        Objects.requireNonNull(model, "the specified model is null");
+
+        Objects.requireNonNull(TeamRequestController.connection, "the connection is null");
+
+        model.addAttribute("searchTeam", searchTeam);
+
+        field = searchTeam.getField();
+
+        searchValueString = searchTeam.getSearchValue();
+
+        if (!Objects.equals(field, "team_name")) {
+            try {
+                searchValueInteger = Integer.parseInt(searchValueString);
+            } catch (NumberFormatException e) {
+                return "<!DOCTYPE HTML>\n" +
+                        "<html>\n" +
+                        "<head>\n" +
+                        "<title>Search Team</title>\n" +
+                        "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n" +
+                        "</head>\n" +
+                        "<body>\n" +
+                        "<h1>Search Team</h1>\n" +
+                        "<p>No teams with that search value exist.</p>\n" +
+                        "</body>\n" +
+                        "</html>";
+            } //end try catch
+        } //end if
+
+        if (Objects.equals(field, "team_name")) {
+            whereClause = "UPPER(team_name) = UPPER(?)";
+        } else {
+            format = "%s = ?";
+
+            whereClause = String.format(format, field);
+        } //end if
+
+        format = "SELECT * FROM team WHERE %s;";
+
+        searchQuery = String.format(format, whereClause);
+
+        try (var statement = TeamRequestController.connection.prepareStatement(searchQuery)) {
+            if (Objects.equals(field, "team_name")) {
+                statement.setString(searchValueIndex, searchValueString);
+            } else {
+                statement.setInt(searchValueIndex, searchValueInteger);
+            } //end if
+
+            resultSet = statement.executeQuery();
+
+            team_ids = new ArrayList<>();
+
+            team_names = new ArrayList<>();
+
+            sport_ids = new ArrayList<>();
+
+            while (resultSet.next()) {
+                team_id = resultSet.getInt("team_id");
+
+                team_name = resultSet.getString("team_name");
+
+                sport_id = resultSet.getInt("sport_id");
+
+                team_ids.add(team_id);
+
+                team_names.add(team_name);
+
+                sport_ids.add(sport_id);
+            } //end while
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+            return "search-team-failure";
+        } //end try catch
+
+        if (team_ids.isEmpty()) {
+            return "<!DOCTYPE HTML>\n" +
+                    "<html>\n" +
+                    "<head>\n" +
+                    "<title>Search Team</title>\n" +
+                    "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n" +
+                    "</head>\n" +
+                    "<body>\n" +
+                    "<h1>Search Team</h1>\n" +
+                    "<p>No teams with that search value exist.</p>\n" +
+                    "</body>\n" +
+                    "</html>";
+        } //end if
+
+        format = "<!DOCTYPE HTML>\n" +
+                "<html>\n" +
+                "<head>\n" +
+                "<title>Search Team</title>\n" +
+                "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n" +
+                "</head>\n" +
+                "<body>\n" +
+                "<h1>Search Team</h1>\n" +
+                "<table border = '1'>\n" +
+                "<tr><th>Team ID</th><th>team_name</th><th>sport_id</th>\n</tr>" +
+                "%s" +
+                "</table>\n" +
+                "</body>\n" +
+                "</html>";
+
+        stringBuilder = new StringBuilder();
+
+        for (int i = 0; i < team_ids.size(); i++) {
+            team_id = team_ids.get(i);
+
+            team_name = team_names.get(i);
+
+            sport_id = sport_ids.get(i);
+
+            stringBuilder.append("<tr>");
+
+            stringBuilder.append("<td>");
+
+            stringBuilder.append(team_id);
+
+            stringBuilder.append("</td>");
+
+            stringBuilder.append("<td>");
+
+            stringBuilder.append(team_name);
+
+            stringBuilder.append("</td>");
+
+            stringBuilder.append("<td>");
+
+            stringBuilder.append(sport_id);
+
+            stringBuilder.append("</td>");
+
+            stringBuilder.append("</tr>\n");
+        } //end for
+
+        tableString = stringBuilder.toString();
+
+        htmlString = String.format(format, tableString);
+
+        return htmlString;
+    } //searchTeamSubmit
+
+    /**
+     * Handles the request for listing teams.
+     *
+     * @return the response to listing teams
+     */
+    @GetMapping(value = "list-teams", produces = MediaType.TEXT_HTML_VALUE)
+    @ResponseBody
+    public String listTeams() {
+        String query;
+        ResultSet resultSet;
+        List<Integer> team_ids;
+        List<String> team_names;
+        List<Integer> sport_ids;
+
+        int team_id;
+        String team_name;
+        int sport_id;
+        String format;
+        StringBuilder stringBuilder;
+        String tableString;
+        String htmlString;
+
+        Objects.requireNonNull(TeamRequestController.connection, "the connection is null");
+
+        query = "SELECT * FROM team;";
+
+        try (var statement = TeamRequestController.connection.createStatement()) {
+            resultSet = statement.executeQuery(query);
+
+            team_ids = new ArrayList<>();
+
+            team_names = new ArrayList<>();
+
+            sport_ids = new ArrayList<>();
+
+            while (resultSet.next()) {
+                team_id = resultSet.getInt("team_id");
+
+                team_name = resultSet.getString("team_name");
+
+                sport_id = resultSet.getInt("sport_id");
+
+                team_ids.add(team_id);
+
+                team_names.add(team_name);
+
+                sport_ids.add(sport_id);
+            } //end while
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+            return "list-teams-failure";
+        } //end try catch
+
+        if (team_ids.isEmpty()) {
+            return "<!DOCTYPE HTML>\n" +
+                    "<html>\n" +
+                    "<head>\n" +
+                    "<title>List Teams</title>\n" +
+                    "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n" +
+                    "</head>\n" +
+                    "<body>\n" +
+                    "<h1>List Teams</h1>\n" +
+                    "<p>No teams exist.</p>\n" +
+                    "</body>\n" +
+                    "</html>";
+        } //end if
+
+        format = "<!DOCTYPE HTML>\n" +
+                "<html>\n" +
+                "<head>\n" +
+                "<title>List Teams</title>\n" +
+                "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/>\n" +
+                "</head>\n" +
+                "<body>\n" +
+                "<h1>List Teams</h1>\n" +
+                "<table border = '1'>\n" +
+                "<tr><th>Team ID</th><th>Team Name</th><th>Sport ID</th></tr>\n" +
+                "%s" +
+                "</table>\n" +
+                "</body>\n" +
+                "</html>";
+
+        stringBuilder = new StringBuilder();
+
+        for (int i = 0; i < team_ids.size(); i++) {
+            team_id = team_ids.get(i);
+
+            team_name = team_names.get(i);
+
+            sport_id = sport_ids.get(i);
+
+            stringBuilder.append("<tr>");
+
+            stringBuilder.append("<td>");
+
+            stringBuilder.append(team_id);
+
+            stringBuilder.append("</td>");
+
+            stringBuilder.append("<td>");
+
+            stringBuilder.append(team_name);
+
+            stringBuilder.append("</td>");
+
+            stringBuilder.append("<td>");
+
+            stringBuilder.append(sport_id);
+
+            stringBuilder.append("</td>");
+
+            stringBuilder.append("</tr>\n");
+        } //end for
+
+        tableString = stringBuilder.toString();
+
+        htmlString = String.format(format, tableString);
+
+        return htmlString;
+    } //listTeams
+
+        @GetMapping("team-page")
+    public String teamPage() {
+        return "team-page";
+    } //teamPage
 }

@@ -10,10 +10,12 @@
 <div class="container">
     <h1 class="mb-3">Edit Team</h1>
     <form action="#" th:action="@{/edit-team}" th:object="${editTeam}" method="post">
-        <p>Original Team Name: <input type="text" th:field="*{old_team}" class="form-control" /></p>
-        <p>Original Sport Name: <input type="text" th:field="*{old_name}" class="form-control" /></p>
-        <p>New Team Name: <input type="text" th:field="*{new_team}" class="form-control" /></p>
-        <p>New Sport Name: <input type="text" th:field="*{new_name}" class="form-control" /></p>
+        <p>ID: <input type="text" th:field="*{id}" class="form-control"/></p>
+        <p>Field: <select th:field="*{field}" class="form-select">
+            <option th:value="team_name">Team Name</option>
+            <option th:value="sport_id">Sport ID</option>
+        </select></p>
+        <p>New value: <input type="text" th:field="*{newValue}" class="form-control"/></p>
         <input type="submit" value="Edit" class="btn btn-primary mt-2"/> <input type="reset" value="Reset" class="btn btn-danger mt-2"/>
     </form>
 </div>
