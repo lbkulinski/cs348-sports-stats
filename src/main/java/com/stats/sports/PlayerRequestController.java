@@ -108,7 +108,7 @@ public final class PlayerRequestController {
     public String addPlayerSubmit(@ModelAttribute Player player, Model model) {
         int player_id;
         String name;
-        String player_id_string;
+        String team_id_string;
         int team_id;
 
         Objects.requireNonNull(player, "the specified player is null");
@@ -125,19 +125,19 @@ public final class PlayerRequestController {
 
         name = player.getName();
 
-        player_id_string = player.getPlayer_id();
+        team_id_string = player.getTeam_id();
 
         try {
-            player_id = Integer.parseInt(player_id_string);
+            team_id = Integer.parseInt(team_id_string);
         } catch (NumberFormatException e) {
-            return "add-player-failure-player-id-invalid";
+            return "add-player-failure-team-id-invalid";
         } //end try catch
         DataSource data_source = TeamRequestController.DataSourceConfig.getDataSource();
 
-        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(data_source).withProcedureName("ADD_TEAM");
+        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(data_source).withProcedureName("ADD_PLAYER");
         SqlParameterSource parameters = new MapSqlParameterSource().addValue("in_player_id", player_id)
                 .addValue("in_name", name)
-                .addValue("in_player_id", player_id);
+                .addValue("in_team_id", team_id);
         Map<String, Object> out = jdbcCall.execute(parameters);
 
         return "add-player-success";
