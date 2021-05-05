@@ -1,0 +1,720 @@
+Index: src/main/java/com/stats/sports/Team.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/stats/sports/Team.java b/src/main/java/com/stats/sports/Team.java
+new file mode 100644
+--- /dev/null	(date 1620109849552)
++++ b/src/main/java/com/stats/sports/Team.java	(date 1620109849552)
+@@ -0,0 +1,144 @@
++package com.stats.sports;
++
++import java.util.Objects;
++
++/**
++ * A team in the sports statistics application.
++ *
++ * <p>Purdue University -- CS34800 -- Spring 2021 -- Project</p>
++ *
++ * @author Josh Lefton, jlefton@purdue.edu
++ * @version 5/3/2021
++ */
++public final class Team {
++    /**
++     * The unique ID of this team.
++     */
++    private String team_id;
++
++    /**
++     * The name of this team.
++     */
++    private String team_name;
++
++    /**
++     * The ID of the sport in which this team competes.
++     */
++    private String sport_id;
++
++
++    /**
++     * Constructs a newly allocated {@code Team} with team_id, team_name, and sport_id.
++     */
++    public Team() {
++        this.team_id = null;
++
++        this.team_name = null;
++
++        this.sport_id = null;
++    } // Team
++
++    /**
++     * Returns the ID of this team.
++     
++     * @return the ID of this team
++     */
++    public String getTeam_id() {
++        return this.team_id;
++    } //getTeam_id
++
++    /**
++     * Returns the name of this team.
++     *
++     * @return the name of this team
++     */
++    public String getTeam_name() {
++        return this.team_name;
++    } //getTeam_name
++
++    /**
++     * Returns the ID of the sport in which this team competes.
++     *
++     * @return the ID of the sport in which this team competes
++     */
++    public String getSport_id() {
++        return this.sport_id;
++    } //getSport_id
++
++
++    /**
++     * Updates the ID of this team with the specified team_id.
++     *
++     * @param team_id the ID of the team to be used in the update
++     */
++    public void setTeam_id(String team_id) {
++        this.team_id = team_id;
++    } //setTeam_id
++
++    /**
++     * Updates the name of this team with the specified team_name.
++     *
++     * @param team_name the team_name to be used in the update
++     */
++    public void setTeam_name(String team_name) {
++        this.team_name = team_name;
++    } //setTeam_name
++
++    /**
++     * Updates the sport ID of the sport in which this team plays with the specified sport ID.
++     *
++     * @param sport_id the sport ID to be used in the update
++     */
++    public void setSport_id(String sport_id) {
++        this.sport_id = sport_id;
++    } //setSport_id
++
++
++    /**
++     * Returns the hash code of this team.
++     *
++     * @return the hash code of this team
++     */
++    @Override
++    public int hashCode() {
++        return Objects.hash(this.team_id, this.team_name, this.sport_id);
++    } //hashCode
++
++    /**
++     * Determines whether or not the specified object is equal to this team. {@code true} is returned if and only if
++     * the specified object is an instance of {@code Team} and its team_id, team_name, and sport_id are equal to this
++     * team's. {@code String} comparisons are case-sensitive.
++     *
++     * @param object the object to be used in the comparisons
++     * @return {@code true}, if the specified object is equal to this team and {@code false} otherwise
++     */
++    @Override
++    public boolean equals(Object object) {
++        if (object instanceof Team) {
++            boolean equal;
++
++            equal = Objects.equals(this.team_id, ((Team) object).team_id);
++
++            equal &= Objects.equals(this.team_name, ((Team) object).team_name);
++
++            equal &= Objects.equals(this.sport_id, ((Team) object).sport_id);
++
++            return equal;
++        } //end if
++
++        return false;
++    } //equals
++
++    /**
++     * Returns the {@code String} representation of this player. The {@code String} representations of two teams are
++     * equal if and only if the players are equal according to {@link Team#equals(Object)}.
++     *
++     * @return the {@code String} representation of this team
++     */
++    @Override
++    public String toString() {
++        String format = "Player[team_id=%s, team_name=%s, sport_id=%s]";
++
++        return String.format(format, this.team_id, this.team_name, this.sport_id);
++    } //toString
++}
+Index: src/main/java/com/stats/sports/EditTeam.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/stats/sports/EditTeam.java b/src/main/java/com/stats/sports/EditTeam.java
+new file mode 100644
+--- /dev/null	(date 1620156642084)
++++ b/src/main/java/com/stats/sports/EditTeam.java	(date 1620156642084)
+@@ -0,0 +1,141 @@
++package com.stats.sports;
++
++import java.util.Objects;
++
++/**
++ * An edited game in the sports statistics application.
++ *
++ * <p>Purdue University -- CS34800 -- Spring 2021 -- Project</p>
++ *
++ * @author Josh Lefton, jlefton@purdue.edu
++ * @version 5/4/2021
++ */
++public final class EditTeam {
++    /**
++     * The ID of this edit team.
++     */
++    private String team_id;
++
++    /**
++     * The field of this edit team.
++     */
++    private String field;
++
++    /**
++     * The new value of this edit team.
++     */
++    private String newValue;
++
++    /**
++     * Constructs a newly allocated {@code EditTeam} object with a default ID, field, and new value of {@code null}.
++     */
++    public EditTeam() {
++        this.team_id = null;
++
++        this.field = null;
++
++        this.newValue = null;
++    } //EditTeam
++
++    /**
++     * Returns the ID of this edit team.
++     *
++     * @return the ID of this edit team
++     */
++    public String getId() {
++        return this.team_id;
++    } //getId
++
++    /**
++     * Returns the field of this edit team.
++     *
++     * @return the field of this edit team
++     */
++    public String getField() {
++        return this.field;
++    } //getField
++
++    /**
++     * Returns the new value of this edit team.
++     *
++     * @return the new value of this edit team
++     */
++    public String getNewValue() {
++        return this.newValue;
++    } //getNewValue
++
++    /**
++     * Updates the ID of this edit team with the specified ID.
++     *
++     * @param id the ID to be used in the operation
++     */
++    public void setId(String id) {
++        this.team_id = id;
++    } //setId
++
++    /**
++     * Updates the field of this edit team with the specified field.
++     *
++     * @param field the field to be used in the operation
++     */
++    public void setField(String field) {
++        this.field = field;
++    } //setField
++
++    /**
++     * Updates the new value of this edit team with the specified new value.
++     *
++     * @param newValue the new value to be used in the operation
++     */
++    public void setNewValue(String newValue) {
++        this.newValue = newValue;
++    } //setNewValue
++
++    /**
++     * Returns the hash code of this edit team.
++     *
++     * @return the hash code of this edit team
++     */
++    @Override
++    public int hashCode() {
++        return Objects.hash(this.team_id, this.field, this.newValue);
++    } //hashCode
++
++    /**
++     * Determines whether or not the specified object is equal to this edit team. {@code true} is returned if and only
++     * if the specified object is an instance of {@code EditTeam} and its ID, field, and new value are equal to this
++     * edit team's. {@code String} comparisons are case-sensitive.
++     *
++     * @param object the object to be used in the comparisons
++     * @return {@code true}, if the specified object is equal to this team and {@code false} otherwise
++     */
++    @Override
++    public boolean equals(Object object) {
++        if (object instanceof EditTeam) {
++            boolean equal;
++
++            equal = Objects.equals(this.team_id, ((EditTeam) object).team_id);
++
++            equal &= Objects.equals(this.field, ((EditTeam) object).field);
++
++            equal &= Objects.equals(this.newValue, ((EditTeam) object).newValue);
++
++            return equal;
++        } //end if
++
++        return false;
++    } //equals
++
++    /**
++     * Returns the {@code String} representation of this edit team. The {@code String} representations of two edit
++     * teams are equal if and only if the edit teams are equal according to {@link EditTeam#equals(Object)}.
++     *
++     * @return the {@code String} representation of this edit team
++     */
++    @Override
++    public String toString() {
++        String format = "EditTeam[team_id=%s, field=%s, newValue=%s]";
++
++        return String.format(format, this.team_id, this.field, this.newValue);
++    } //toString
++}
+Index: src/main/java/com/stats/sports/TeamRequestController.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/stats/sports/TeamRequestController.java b/src/main/java/com/stats/sports/TeamRequestController.java
+new file mode 100644
+--- /dev/null	(date 1620175810737)
++++ b/src/main/java/com/stats/sports/TeamRequestController.java	(date 1620175810737)
+@@ -0,0 +1,283 @@
++package com.stats.sports;
++
++import org.springframework.boot.jdbc.DataSourceBuilder;
++import org.springframework.context.annotation.Bean;
++import org.springframework.context.annotation.Configuration;
++import org.springframework.http.MediaType;
++import org.springframework.stereotype.Controller;
++import org.springframework.ui.Model;
++import org.springframework.web.bind.annotation.GetMapping;
++import org.springframework.web.bind.annotation.ModelAttribute;
++import org.springframework.web.bind.annotation.PostMapping;
++import org.springframework.web.bind.annotation.ResponseBody;
++import org.springframework.jdbc.core.simple.SimpleJdbcCall;
++import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
++import org.springframework.jdbc.core.namedparam.SqlParameterSource;
++
++import javax.sql.DataSource;
++import java.sql.*;
++import java.util.Map;
++import java.util.Objects;
++
++/**
++ * A controller for team requests of the sports statistics application.
++ *
++ * <p>Purdue University -- CS34800 -- Spring 2021 -- Project</p>
++ *
++ * @author Josh Lefton, jlefton@purdue.edu
++ * @version 5/3/2021
++ */
++@Controller
++public final class TeamRequestController {
++    /**
++     * The connection of the {@code TeamRequestController} class.
++     */
++    private static final Connection connection;
++
++    /**
++     * The next team ID of the {@code TeamRequestController} class.
++     */
++    private static int next_team_id;
++
++    static {
++        connection = DatabaseConnection.getConnection();
++
++        next_team_id = getTeam_id();
++    } //static
++
++    /**
++     * Returns a DataSource object representing the database
++     *
++     * @return the DataSource object representing the database
++     */
++    @Configuration
++    public static class DataSourceConfig {
++
++        @Bean
++        public static DataSource getDataSource() {
++            DataSourceBuilder dsBuilder = DataSourceBuilder.create();
++            dsBuilder.url(System.getProperty("url"));
++            dsBuilder.username(System.getProperty("username"));
++            dsBuilder.password(System.getProperty("password"));
++            return dsBuilder.build();
++        }
++    }
++
++    /**
++     * Returns the ID to be assigned to the next team.
++     *
++     * @return the ID to be assigned to the next team
++     */
++    private static int getTeam_id() {
++        String query;
++        ResultSet result_set;
++        int id = 0;
++
++        Objects.requireNonNull(TeamRequestController.connection, "the connection is null");
++
++        query = "SELECT MAX(team_id) AS max_id FROM team;";
++
++        try (var statement = TeamRequestController.connection.createStatement()) {
++            result_set = statement.executeQuery(query);
++
++            while (result_set.next()) {
++                id = result_set.getInt("max_id");
++            } //end while
++
++            id++;
++        } catch (SQLException e) {
++            e.printStackTrace();
++        } //end try catch
++
++        return id;
++    } //getTeam_id
++
++    /**
++     * Returns the form for adding a team.
++     *
++     * @param model the model to be used in the operation
++     * @return the form for adding a team
++     * @throws NullPointerException if the specified model is {@code null}
++     */
++    @GetMapping("add-team")
++    public String addTeamForm(Model model) {
++        Team team;
++
++        Objects.requireNonNull(model, "the specified model is null");
++
++        team = new Team();
++
++        model.addAttribute("team", team);
++
++        return "add-team";
++    } //addTeamForm
++
++    /**
++     * Handles the request for attempting to add the specified team.
++     *
++     * @param team  the team to be used in the operation
++     * @param model the model to be used in the operation
++     * @return the response to attempting to add the specified team
++     * @throws NullPointerException if the specified team or model is {@code null}
++     */
++    @PostMapping("add-team")
++    public String addTeamSubmit(@ModelAttribute Team team, Model model) {
++        int team_id;
++        String team_name;
++        String sport_id_string;
++        int sport_id;
++        String insertStatement;
++        int id_index = 1;
++        int team_name_index = 2;
++
++        Objects.requireNonNull(team, "the specified team is null");
++
++        Objects.requireNonNull(model, "the specified model is null");
++
++        Objects.requireNonNull(TeamRequestController.connection, "the connection is null");
++
++        model.addAttribute("team", team);
++
++        team_id = TeamRequestController.next_team_id;
++
++        TeamRequestController.next_team_id++;
++
++        team_name = team.getTeam_name();
++
++        sport_id_string = team.getSport_id();
++
++        try {
++            sport_id = Integer.parseInt(sport_id_string);
++        } catch (NumberFormatException e) {
++            return "add-team-failure-sport-id-invalid";
++        } //end try catch
++        DataSource data_source = DataSourceConfig.getDataSource();
++
++        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(data_source).withProcedureName("ADD_TEAM");
++        SqlParameterSource parameters = new MapSqlParameterSource().addValue("in_team_id", team_id)
++                .addValue("in_team_name", team_name)
++                .addValue("in_sport_id", sport_id);
++        Map<String, Object> out = jdbcCall.execute(parameters);
++
++        return "add-team-success";
++    } //addSportSubmit
++
++    /**
++     * Returns the form for editing a team.
++     *
++     * @param model the model to be used in the operation
++     * @return the form for editing a team
++     * @throws NullPointerException if the specified model is {@code null}
++     */
++    @GetMapping("edit-team")
++    public String editTeamForm(Model model) {
++        EditTeam editTeam;
++
++        Objects.requireNonNull(model, "the specified model is null");
++
++        editTeam = new EditTeam();
++
++        model.addAttribute("editTeam", editTeam);
++
++        return "edit-team";
++    } //editTeamForm
++
++    /**
++     * Handles the request for attempting to edit a team using the specified edit team.
++     *
++     * @param editTeam the edit team to be used in the operation
++     * @param model    the model to be used in the operation
++     * @return the response to attempting to edit a team using the specified edit team
++     * @throws NullPointerException if the specified edit team or model is {@code null}
++     */
++    @PostMapping("edit-team")
++    public String editTeamSubmit(@ModelAttribute EditTeam editTeam, Model model) {
++        String idString;
++        int team_id;
++        String field;
++        String value;
++
++        Objects.requireNonNull(editTeam, "the specified edit team is null");
++
++        Objects.requireNonNull(model, "the specified model is null");
++
++        Objects.requireNonNull(TeamRequestController.connection, "the connection is null");
++
++        idString = editTeam.getId();
++
++        try {
++            team_id = Integer.parseInt(idString);
++        } catch (NumberFormatException e) {
++            return "edit-team-failure-team-id-invalid";
++        } //end try catch
++
++        field = editTeam.getField();
++
++        value = editTeam.getNewValue();
++
++        DataSource data_source = DataSourceConfig.getDataSource();
++
++        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(data_source).withProcedureName("EDIT_TEAM");
++        SqlParameterSource parameters = new MapSqlParameterSource().addValue("in_team_id", team_id)
++                .addValue("in_field", field)
++                .addValue("in_value", value);
++        Map<String, Object> out = jdbcCall.execute(parameters);
++        return "edit-team-success";
++    } //editTeamSubmit
++
++    /**
++     * Returns the form for deleting a team.
++     *
++     * @param model the model to be used in the operation
++     * @return the form for deleting a team
++     * @throws NullPointerException if the specified model is {@code null}
++     */
++    @GetMapping("delete-team")
++    public String deleteTeamForm(Model model) {
++        DeleteTeam deleteTeam;
++
++        Objects.requireNonNull(model, "the specified model is null");
++
++        deleteTeam = new DeleteTeam();
++
++        model.addAttribute("deleteTeam", deleteTeam);
++
++        return "delete-team";
++    } //deleteTeamForm
++
++    /**
++     * Handles the request for attempting to delete the specified delete team.
++     *
++     * @param deleteTeam the delete team to be used in the operation
++     * @param model the model to be used in the operation
++     * @return the response to attempting to delete the specified delete team
++     * @throws NullPointerException if the specified delete team or model is {@code null}
++     */
++    @PostMapping("delete-team")
++    public String deleteTeamSubmit(@ModelAttribute DeleteTeam deleteTeam, Model model) {
++        String idString;
++        int team_id;
++
++        Objects.requireNonNull(deleteTeam, "the specified delete team is null");
++
++        Objects.requireNonNull(model, "the specified model is null");
++
++        Objects.requireNonNull(TeamRequestController.connection, "the connection is null");
++
++        idString = deleteTeam.getId();
++
++        try {
++            team_id = Integer.parseInt(idString);
++        } catch (NumberFormatException e) {
++            return "delete-team-failure-id-invalid";
++        } //end try catch
++
++        DataSource data_source = DataSourceConfig.getDataSource();
++
++        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(data_source).withProcedureName("DELETE_TEAM");
++        SqlParameterSource parameters = new MapSqlParameterSource().addValue("in_team_id", team_id);
++        Map<String, Object> out = jdbcCall.execute(parameters);
++
++        return "delete-team-success";
++    } //deleteTeamSubmit
++}
+\ No newline at end of file
+Index: src/main/java/com/stats/sports/DeleteTeam.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/stats/sports/DeleteTeam.java b/src/main/java/com/stats/sports/DeleteTeam.java
+new file mode 100644
+--- /dev/null	(date 1620161827492)
++++ b/src/main/java/com/stats/sports/DeleteTeam.java	(date 1620161827492)
+@@ -0,0 +1,83 @@
++package com.stats.sports;
++
++import java.util.Objects;
++
++/**
++ * A deleted team in the sports statistics application.
++ *
++ * <p>Purdue University -- CS34800 -- Spring 2021 -- Project</p>
++ *
++ * @author Josh Lefton, jlefton@purdue.edu
++ * @version 5/4/21
++ */
++public final class DeleteTeam {
++    /**
++     * The ID of this delete team.
++     */
++    private String team_id;
++
++    /**
++     * Constructs a newly allocated {@code DeleteTeam} object with a default ID of {@code null}.
++     */
++    public DeleteTeam() {
++        this.team_id = null;
++    } //DeleteTeam
++
++    /**
++     * Returns the ID of this delete team.
++     *
++     * @return the ID of this delete team
++     */
++    public String getId() {
++        return this.team_id;
++    } //getOldName
++
++    /**
++     * Updates the ID of this delete team with the specified ID.
++     *
++     * @param id the ID to be used in the operation
++     */
++    public void setId(String id) {
++        this.team_id = id;
++    } //setOldName
++
++    /**
++     * Returns the hash code of this delete team.
++     *
++     * @return the hash code of this delete team
++     */
++    @Override
++    public int hashCode() {
++        return Objects.hash(this.team_id);
++    } //hashCode
++
++    /**
++     * Determines whether or not the specified object is equal to this delete team. {@code true} is returned if and
++     * only if the specified object is an instance of {@code DeleteTeam} and its ID is equal to this delete team's. ID
++     * comparisons are case-sensitive.
++     *
++     * @param object the object to be used in the comparisons
++     * @return {@code true}, if the specified object is equal to this delete team and {@code false} otherwise
++     */
++    @Override
++    public boolean equals(Object object) {
++        if (object instanceof DeleteTeam) {
++            return Objects.equals(this.team_id, ((DeleteTeam) object).team_id);
++        } //end if
++
++        return false;
++    } //equals
++
++    /**
++     * Returns the {@code String} representation of this delete team. The {@code String} representations of two delete
++     * teams are equal if and only if the delete teams are equal according to {@link DeleteTeam#equals(Object)}.
++     *
++     * @return the {@code String} representation of this delete team
++     */
++    @Override
++    public String toString() {
++        String format = "DeleteTeam[team_id=%s]";
++
++        return String.format(format, this.team_id);
++    } //toString
++}
+\ No newline at end of file
+Index: pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n\txsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n\t<modelVersion>4.0.0</modelVersion>\r\n\t<parent>\r\n\t\t<groupId>org.springframework.boot</groupId>\r\n\t\t<artifactId>spring-boot-starter-parent</artifactId>\r\n\t\t<version>2.4.4</version>\r\n\t\t<relativePath/>\r\n\t</parent>\r\n\t<groupId>com.stats.sports</groupId>\r\n\t<artifactId>cs348-sports-stats</artifactId>\r\n\t<version>0.0.1-SNAPSHOT</version>\r\n\t<name>cs348-sports-stats</name>\r\n\t<description>Demo project for Spring Boot</description>\r\n\t<properties>\r\n\t\t<java.version>11</java.version>\r\n\t</properties>\r\n\t<dependencies>\r\n\t\t<dependency>\r\n\t\t\t<groupId>org.springframework.boot</groupId>\r\n\t\t\t<artifactId>spring-boot-starter-thymeleaf</artifactId>\r\n\t\t</dependency>\r\n\t\t<dependency>\r\n\t\t\t<groupId>org.springframework.boot</groupId>\r\n\t\t\t<artifactId>spring-boot-starter-web</artifactId>\r\n\t\t</dependency>\r\n\t\t<dependency>\r\n\t\t\t<groupId>org.springframework.boot</groupId>\r\n\t\t\t<artifactId>spring-boot-starter-test</artifactId>\r\n\t\t\t<scope>test</scope>\r\n\t\t</dependency>\r\n        <dependency>\r\n            <groupId>mysql</groupId>\r\n            <artifactId>mysql-connector-java</artifactId>\r\n            <version>8.0.23</version>\r\n        </dependency>\r\n    </dependencies>\r\n\t<build>\r\n\t\t<plugins>\r\n\t\t\t<plugin>\r\n\t\t\t\t<groupId>org.springframework.boot</groupId>\r\n\t\t\t\t<artifactId>spring-boot-maven-plugin</artifactId>\r\n\t\t\t</plugin>\r\n\t\t</plugins>\r\n\t</build>\r\n</project>\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/pom.xml b/pom.xml
+--- a/pom.xml	(revision 4ccde57e6c7f9d2fc7ed8b67cfeb1ed3775fc1c3)
++++ b/pom.xml	(date 1620175204291)
+@@ -25,6 +25,16 @@
+ 			<groupId>org.springframework.boot</groupId>
+ 			<artifactId>spring-boot-starter-web</artifactId>
+ 		</dependency>
++		<dependency>
++			<groupId>org.springframework</groupId>
++			<artifactId>spring-jdbc</artifactId>
++		</dependency>
++		<dependency>
++			<groupId>com.zaxxer</groupId>
++			<artifactId>HikariCP</artifactId>
++			<version>4.0.3</version>
++		</dependency>
++
+ 		<dependency>
+ 			<groupId>org.springframework.boot</groupId>
+ 			<artifactId>spring-boot-starter-test</artifactId>
