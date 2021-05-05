@@ -1,8 +1,5 @@
 package com.stats.sports;
 
-import org.springframework.boot.jdbc.DataSourceBuilder;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -62,6 +59,7 @@ public final class PlayerRequestController {
         query = "SELECT MAX(player_id) AS max_id FROM player;";
 
         try (var statement = PlayerRequestController.connection.createStatement()) {
+            PlayerRequestController.connection.setAutoCommit(false);
             result_set = statement.executeQuery(query);
 
             while (result_set.next()) {
@@ -69,9 +67,21 @@ public final class PlayerRequestController {
             } //end while
 
             id++;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } //end try catch
+            PlayerRequestController.connection.commit();
+        } catch (SQLException err) {
+            try {
+                PlayerRequestController.connection.rollback();
+            } catch (SQLException err_2) {
+                err_2.printStackTrace();
+            }
+            err.printStackTrace();
+        } finally {
+            try {
+                PlayerRequestController.connection.setAutoCommit(true);
+            } catch (SQLException err_3) {
+                err_3.printStackTrace();
+            }
+        }//end try catch
 
         return id;
     } //getPlayer_id
@@ -132,13 +142,30 @@ public final class PlayerRequestController {
         } catch (NumberFormatException e) {
             return "add-player-failure-team-id-invalid";
         } //end try catch
-        DataSource data_source = TeamRequestController.DataSourceConfig.getDataSource();
+        DataSource data_source = DataSourceConfig.getDataSource();
 
-        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(data_source).withProcedureName("ADD_PLAYER");
-        SqlParameterSource parameters = new MapSqlParameterSource().addValue("in_player_id", player_id)
-                .addValue("in_name", name)
-                .addValue("in_team_id", team_id);
-        Map<String, Object> out = jdbcCall.execute(parameters);
+        try {
+            PlayerRequestController.connection.setAutoCommit(false);
+            SimpleJdbcCall jdbcCall = new SimpleJdbcCall(data_source).withProcedureName("ADD_PLAYER");
+            SqlParameterSource parameters = new MapSqlParameterSource().addValue("in_player_id", player_id)
+                    .addValue("in_name", name)
+                    .addValue("in_team_id", team_id);
+            Map<String, Object> out = jdbcCall.execute(parameters);
+            PlayerRequestController.connection.commit();
+        } catch (SQLException err) {
+            try {
+                PlayerRequestController.connection.rollback();
+            } catch (SQLException err_2) {
+                err_2.printStackTrace();
+            }
+            err.printStackTrace();
+        } finally {
+            try {
+                PlayerRequestController.connection.setAutoCommit(true);
+            } catch (SQLException err_3) {
+                err_3.printStackTrace();
+            }
+        }//end try catch
 
         return "add-player-success";
     } //addTeamSubmit
@@ -196,13 +223,30 @@ public final class PlayerRequestController {
 
         value = editPlayer.getNewValue();
 
-        DataSource data_source = TeamRequestController.DataSourceConfig.getDataSource();
+        DataSource data_source = DataSourceConfig.getDataSource();
 
-        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(data_source).withProcedureName("EDIT_PLAYER");
-        SqlParameterSource parameters = new MapSqlParameterSource().addValue("in_player_id", player_id)
-                .addValue("in_field", field)
-                .addValue("in_value", value);
-        Map<String, Object> out = jdbcCall.execute(parameters);
+        try {
+            PlayerRequestController.connection.setAutoCommit(false);
+            SimpleJdbcCall jdbcCall = new SimpleJdbcCall(data_source).withProcedureName("EDIT_PLAYER");
+            SqlParameterSource parameters = new MapSqlParameterSource().addValue("in_player_id", player_id)
+                    .addValue("in_field", field)
+                    .addValue("in_value", value);
+            Map<String, Object> out = jdbcCall.execute(parameters);
+            PlayerRequestController.connection.commit();
+        } catch (SQLException err) {
+            try {
+                PlayerRequestController.connection.rollback();
+            } catch (SQLException err_2) {
+                err_2.printStackTrace();
+            }
+            err.printStackTrace();
+        } finally {
+            try {
+                PlayerRequestController.connection.setAutoCommit(true);
+            } catch (SQLException err_3) {
+                err_3.printStackTrace();
+            }
+        }//end try catch
         return "edit-player-success";
     } //editPlayerSubmit
 
@@ -253,11 +297,28 @@ public final class PlayerRequestController {
             return "delete-player-failure-id-invalid";
         } //end try catch
 
-        DataSource data_source = TeamRequestController.DataSourceConfig.getDataSource();
+        DataSource data_source = DataSourceConfig.getDataSource();
 
-        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(data_source).withProcedureName("DELETE_PLAYER");
-        SqlParameterSource parameters = new MapSqlParameterSource().addValue("in_player_id", player_id);
-        Map<String, Object> out = jdbcCall.execute(parameters);
+        try {
+            PlayerRequestController.connection.setAutoCommit(false);
+            SimpleJdbcCall jdbcCall = new SimpleJdbcCall(data_source).withProcedureName("DELETE_PLAYER");
+            SqlParameterSource parameters = new MapSqlParameterSource().addValue("in_player_id", player_id);
+            Map<String, Object> out = jdbcCall.execute(parameters);
+            PlayerRequestController.connection.commit();
+        } catch (SQLException err) {
+            try {
+                PlayerRequestController.connection.rollback();
+            } catch (SQLException err_2) {
+                err_2.printStackTrace();
+            }
+            err.printStackTrace();
+        } finally {
+            try {
+                PlayerRequestController.connection.setAutoCommit(true);
+            } catch (SQLException err_3) {
+                err_3.printStackTrace();
+            }
+        }//end try catch
 
         return "delete-player-success";
     } //deletePlayerSubmit

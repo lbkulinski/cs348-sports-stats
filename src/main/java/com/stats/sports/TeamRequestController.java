@@ -1,8 +1,5 @@
 package com.stats.sports;
 
-import org.springframework.boot.jdbc.DataSourceBuilder;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -47,24 +44,6 @@ public final class TeamRequestController {
         next_team_id = getTeam_id();
     } //static
 
-    @Configuration
-    public static class DataSourceConfig {
-
-        /**
-         * Returns a DataSource object representing the database
-         *
-         * @return the DataSource object representing the database
-         */
-        @Bean
-        public static DataSource getDataSource() {
-            DataSourceBuilder dsBuilder = DataSourceBuilder.create();
-            dsBuilder.url(System.getProperty("url"));
-            dsBuilder.username(System.getProperty("username"));
-            dsBuilder.password(System.getProperty("password"));
-            return dsBuilder.build();
-        }
-    }
-
     /**
      * Returns the ID to be assigned to the next team.
      *
@@ -78,8 +57,8 @@ public final class TeamRequestController {
         Objects.requireNonNull(TeamRequestController.connection, "the connection is null");
 
         query = "SELECT MAX(team_id) AS max_id FROM team;";
-
         try (var statement = TeamRequestController.connection.createStatement()) {
+            TeamRequestController.connection.setAutoCommit(false);
             result_set = statement.executeQuery(query);
 
             while (result_set.next()) {
@@ -87,10 +66,21 @@ public final class TeamRequestController {
             } //end while
 
             id++;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } //end try catch
-
+            TeamRequestController.connection.commit();
+        } catch (SQLException err) {
+            try {
+                TeamRequestController.connection.rollback();
+            } catch (SQLException err_2) {
+                err_2.printStackTrace();
+            }
+            err.printStackTrace();
+        } finally {
+            try {
+                TeamRequestController.connection.setAutoCommit(true);
+            } catch (SQLException err_3) {
+                err_3.printStackTrace();
+            }
+        }//end try catch
         return id;
     } //getTeam_id
 
@@ -152,11 +142,29 @@ public final class TeamRequestController {
         } //end try catch
         DataSource data_source = DataSourceConfig.getDataSource();
 
-        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(data_source).withProcedureName("ADD_TEAM");
-        SqlParameterSource parameters = new MapSqlParameterSource().addValue("in_team_id", team_id)
-                .addValue("in_team_name", team_name)
-                .addValue("in_sport_id", sport_id);
-        Map<String, Object> out = jdbcCall.execute(parameters);
+        try {
+            TeamRequestController.connection.setAutoCommit(false);
+            SimpleJdbcCall jdbcCall = new SimpleJdbcCall(data_source).withProcedureName("ADD_TEAM");
+            SqlParameterSource parameters = new MapSqlParameterSource().addValue("in_team_id", team_id)
+                    .addValue("in_team_name", team_name)
+                    .addValue("in_sport_id", sport_id);
+            Map<String, Object> out = jdbcCall.execute(parameters);
+            TeamRequestController.connection.commit();
+        } catch (SQLException err) {
+            try {
+                TeamRequestController.connection.rollback();
+            } catch (SQLException err_2) {
+                err_2.printStackTrace();
+            }
+            err.printStackTrace();
+        } finally {
+            try {
+                TeamRequestController.connection.setAutoCommit(true);
+            } catch (SQLException err) {
+                err.printStackTrace();
+            }
+        }
+
 
         return "add-team-success";
     } //addSportSubmit
@@ -216,11 +224,28 @@ public final class TeamRequestController {
 
         DataSource data_source = DataSourceConfig.getDataSource();
 
-        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(data_source).withProcedureName("EDIT_TEAM");
-        SqlParameterSource parameters = new MapSqlParameterSource().addValue("in_team_id", team_id)
-                .addValue("in_field", field)
-                .addValue("in_value", value);
-        Map<String, Object> out = jdbcCall.execute(parameters);
+        try {
+            TeamRequestController.connection.setAutoCommit(false);
+            SimpleJdbcCall jdbcCall = new SimpleJdbcCall(data_source).withProcedureName("EDIT_TEAM");
+            SqlParameterSource parameters = new MapSqlParameterSource().addValue("in_team_id", team_id)
+                    .addValue("in_field", field)
+                    .addValue("in_value", value);
+            Map<String, Object> out = jdbcCall.execute(parameters);
+            TeamRequestController.connection.commit();
+        } catch (SQLException err) {
+            try {
+                TeamRequestController.connection.rollback();
+            } catch (SQLException err_2) {
+                err_2.printStackTrace();
+            }
+            err.printStackTrace();
+        } finally {
+            try {
+                TeamRequestController.connection.setAutoCommit(true);
+            } catch (SQLException err_3) {
+                err_3.printStackTrace();
+            }
+        }//end try catch
         return "edit-team-success";
     } //editTeamSubmit
 
@@ -273,9 +298,26 @@ public final class TeamRequestController {
 
         DataSource data_source = DataSourceConfig.getDataSource();
 
-        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(data_source).withProcedureName("DELETE_TEAM");
-        SqlParameterSource parameters = new MapSqlParameterSource().addValue("in_team_id", team_id);
-        Map<String, Object> out = jdbcCall.execute(parameters);
+        try {
+            TeamRequestController.connection.setAutoCommit(false);
+            SimpleJdbcCall jdbcCall = new SimpleJdbcCall(data_source).withProcedureName("DELETE_TEAM");
+            SqlParameterSource parameters = new MapSqlParameterSource().addValue("in_team_id", team_id);
+            Map<String, Object> out = jdbcCall.execute(parameters);
+            TeamRequestController.connection.commit();
+        } catch (SQLException err) {
+            try {
+                TeamRequestController.connection.rollback();
+            } catch (SQLException err_2) {
+                err_2.printStackTrace();
+            }
+            err.printStackTrace();
+        } finally {
+            try {
+                TeamRequestController.connection.setAutoCommit(true);
+            } catch (SQLException err_3) {
+                err_3.printStackTrace();
+            }
+        }//end try catch
 
         return "delete-team-success";
     } //deleteTeamSubmit
@@ -372,6 +414,7 @@ public final class TeamRequestController {
         searchQuery = String.format(format, whereClause);
 
         try (var statement = TeamRequestController.connection.prepareStatement(searchQuery)) {
+            TeamRequestController.connection.setAutoCommit(false);
             if (Objects.equals(field, "team_name")) {
                 statement.setString(searchValueIndex, searchValueString);
             } else {
@@ -398,6 +441,8 @@ public final class TeamRequestController {
                 team_names.add(team_name);
 
                 sport_ids.add(sport_id);
+
+                TeamRequestController.connection.commit();
             } //end while
         } catch (SQLException e) {
             e.printStackTrace();
